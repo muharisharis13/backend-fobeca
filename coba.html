@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <form action="#" method="post" enctype="multipart/form-data" id="form">
+        Select image to upload:
+        <input type="file" name="photo" id="photo">
+        <input type="file" name="identity" id="identity">
+        <input type="text" name="full_name"/>
+        <input type="text" name="email"/>
+        <input type="text" name="phone_number"/>
+        <input type="submit" value="Upload Image" id="but_upload" name="submit">
+      </form>
+      
+</body>
+<script>
+
+$(document).ready(function(){
+
+$("#form").on('submit',(function(e){
+    e.preventDefault()
+// 
+
+
+var settings = {
+  "url": "http://fobeca-backend.herokuapp.com/couriers",
+  "method": "POST",
+  "timeout": 0,
+  "headers": {
+    "secret": "c25fbd454cb686f2b90eca8997dc2610"
+  },
+  "processData": false,
+  "mimeType": "multipart/form-data",
+  "contentType": false,
+  "data": new FormData(this),
+};
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+   
+}));
+});
+</script>
+</html>
