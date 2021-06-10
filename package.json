@@ -15,6 +15,7 @@
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
+    "formidable": "^1.2.2",
     "fs": "0.0.1-security",
     "mongoose": "^5.12.9",
     "mongoose-datatables": "^3.2.0",

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const couriersModels = require('../../models/couriersModels')
+const Formidable = require('formidable')
 
 router.get('/', async (req, res) => {
     try {
@@ -28,7 +29,9 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+
+
+router.post('/', async function (req, res) {
     try {
         if (req.files) {
             const photo = req.files.photo
@@ -51,17 +54,15 @@ router.post('/', async (req, res) => {
             })
             const save = await post.save();
             res.json(save)
-        } else {
+        }
+        else {
             res.send('There are no files')
         }
-
-
-
-    } catch (error) {
+    } catch (err) {
         res.status(500)
         res.json({ message: error })
     }
-});
+})
 
 router.post('/:_getid', async (req, res) => {
     try {
