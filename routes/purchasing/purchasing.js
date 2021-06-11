@@ -12,6 +12,26 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/updatepurchasing', async function (req, res) {
+    try {
+        const update = await purchasingModel.updateOne({ _id: req.query.id }, {
+            full_name: req.body.full_name,
+            courier_info: {
+                phone_number: req.body.phone_number,
+                email: req.body.email,
+            }
+        })
+
+        res.json({
+            success: 'Berhasil Update Data Purchasing',
+            data: update
+        })
+    }
+    catch (err) {
+        res.json({ message: err })
+    }
+})
+
 router.post('/', async (req, res) => {
     try {
         if (req.files) {
