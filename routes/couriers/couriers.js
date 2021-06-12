@@ -91,8 +91,8 @@ router.post('/:_getid', async (req, res) => {
         } else {
             const photo = req.body.photo
             const identity = req.body.identity
-            const post = new couriersModels.updateOne({ _id: req.params._getId },
-                {$set:{
+            const post = await couriersModels.updateOne({ _id: req.params._getId },
+                {
                 full_name: req.body.full_name,
                 courier_info: {
                     email: req.body.email,
@@ -101,7 +101,7 @@ router.post('/:_getid', async (req, res) => {
                     photo: photo
                 },
                 status: true
-            }})
+                })
             const save = await post.save();
             res.json({
                 success: 'Berhasil Update Data Courier',
