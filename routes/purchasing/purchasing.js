@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/deletepurchasing', async function (req, res) {
+router.delete('/deletepurchasing', async function (req, res) {
     try {
         const deletedata = await purchasingModel.deleteOne({ _id: req.query.id }, {
             status: false
