@@ -14,34 +14,34 @@ router.get('/', async (req, res) => {
 
 router.post('/updatepurchasing', async function (req, res) {
     try {
-        console.log(req.body)
-        if (req.files) {
-            const photo = req.files.photo
-            const photoName = photo.name
-            const identity = req.files.identity
-            const identityName = identity.name
+        // console.log(req.body)
+        // if (req.files) {
+        //     const photo = req.files.photo
+        //     const photoName = photo.name
+        //     const identity = req.files.identity
+        //     const identityName = identity.name
 
-            await photo.mv(`./uploads/photo/${photoName}`)
-            await identity.mv(`./uploads/ktp/${identityName}`)
+        //     await photo.mv(`./uploads/photo/${photoName}`)
+        //     await identity.mv(`./uploads/ktp/${identityName}`)
 
 
-            const update = await purchasingModel.updateOne({ _id: req.query.id }, {
-                full_name: req.body.full_name,
-                courier_info: {
-                    phone_number: req.body.phone_number,
-                    email: req.body.email,
-                    identity_card: identityName,
-                    photo: photoName
-                },
-                status: true
-            })
+        //     const update = await purchasingModel.updateOne({ _id: req.query.id }, {
+        //         full_name: req.body.full_name,
+        //         courier_info: {
+        //             phone_number: req.body.phone_number,
+        //             email: req.body.email,
+        //             identity_card: identityName,
+        //             photo: photoName
+        //         },
+        //         status: true
+        //     })
 
-            res.json({
-                success: 'Berhasil Update Data Purchasing',
-                data: update
-            })
-        }
-        else {
+        //     res.json({
+        //         success: 'Berhasil Update Data Purchasing',
+        //         data: update
+        //     })
+        // }
+        // else {
             const update = await purchasingModel.updateOne({ _id: req.query.id }, {
                 full_name: req.body.full_name,
                 courier_info: {
@@ -57,7 +57,7 @@ router.post('/updatepurchasing', async function (req, res) {
                 success: 'Berhasil Update Data Purchasing tanpa upload image',
                 data: update
             })
-        }
+        // }
     }
     catch (err) {
         res.json({ message: err })
@@ -98,4 +98,8 @@ router.post('/', async (req, res) => {
         res.json({ message: error })
     }
 });
+
+router.delete('/', async function (req, res) {
+
+})
 module.exports = router;
