@@ -89,23 +89,19 @@ router.post('/:_getid', async (req, res) => {
             const save = await post.save();
             res.json(save)
         } else {
-            const photo = req.body.photo
-            const identity = req.body.identity
-            const post = await couriersModels.updateOne({ _id: req.params._getId },
-                {
+            const update = await couriersModels.updateOne({ _id: req.params._getid }, {
                 full_name: req.body.full_name,
                 courier_info: {
                     email: req.body.email,
                     phone_number: req.body.phone_number,
-                    identity_card: identity,
-                    photo: photo
+                    identity_card: req.body.identity,
+                    photo: req.body.photo,
                 },
                 status: true
-                })
-            const save = await post.save();
+            })
             res.json({
                 success: 'Berhasil Update Data Courier',
-                data: save
+                data: update
             })
         }
 
