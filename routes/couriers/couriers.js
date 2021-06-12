@@ -103,7 +103,10 @@ router.post('/:_getid', async (req, res) => {
                 status: true
             }})
             const save = await post.save();
-            res.json(save)
+            res.json({
+                success: 'Berhasil Update Data Courier',
+                data: save
+            })
         }
 
 
