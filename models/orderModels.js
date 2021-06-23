@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 
+
 const postSchema = mongoose.Schema({
   id_user: {
     type: String,
@@ -8,14 +9,21 @@ const postSchema = mongoose.Schema({
   note: {
     type: String
   },
-  lat: {
+  invoice: {
     type: String,
+    unique: true,
     required: true
   },
-  long: {
-    type: String,
-    required: true
-  },
+  // lat: {
+  //   type: String,
+  //   required: true
+  // },
+  // long: {
+  //   type: String,
+  //   required: true
+  // },
+  id_carts: { type: String, required: true }
+  ,
   list_order: [
     {
       id_product: {
@@ -23,6 +31,10 @@ const postSchema = mongoose.Schema({
         required: true
       },
       price_product: {
+        type: String,
+        required: true
+      },
+      category: {
         type: String,
         required: true
       },
@@ -39,6 +51,10 @@ const postSchema = mongoose.Schema({
   status: {
     type: String,
     required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now()
   }
 })
 

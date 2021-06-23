@@ -14,9 +14,7 @@ const PostSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  favorite_product: {
-    type: String
-  },
+  favorite_product: { type: Array },
   price_product: {
     type: String,
     required: true
@@ -25,6 +23,11 @@ const PostSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    required: true
+  }
+  ,
   createdAt: {
     type: Date,
     default: Date.now()

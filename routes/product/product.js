@@ -1,6 +1,80 @@
 const express = require('express')
 const router = express.Router()
 const productModel = require('../../models/ProductModels')
+const userMobileModel = require('../../models/mobile/userAppModels')
+
+router.post('/removeFavorite', async function (req, res) {
+  const { id, id_user } = req.body
+  try {
+    let arrayFav
+    await productModel.findOne({ "_id": id }).then(res => {
+      arrayFav = res.favorite_product
+    })
+    arrayFav.push(id_user)
+
+    // res.json(arrayFav)
+
+
+    let save = await productModel.findOneAndUpdate({ '_id': id }, {
+      favorite_product: arrayFav
+    })
+
+
+    res.json({
+      message: 'success',
+      data: save
+    })
+
+
+  } catch (err) {
+    res.status(500).json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.post('/addFavorite', async function (req, res) {
+  const { id, id_user } = req.body
+  try {
+    let arrayFav
+    let listArrayFav
+    await productModel.findOne({ "_id": id }).then(res => {
+      arrayFav = res.favorite_product
+    })
+
+    await userMobileModel.findOne({ "_id": id_user }).then(res => {
+      listArrayFav = res.list_favorite
+    })
+
+    arrayFav.push(id_user)
+    listArrayFav.push(id)
+
+    // res.json(arrayFav)
+
+
+    let save = await productModel.findOneAndUpdate({ '_id': id }, {
+      favorite_product: arrayFav
+    })
+
+    await userMobileModel.findOneAndUpdate({ '_id': id_user }, {
+      list_favorite: listArrayFav
+    })
+
+
+    res.json({
+      message: 'success',
+      data: save
+    })
+
+
+  } catch (err) {
+    res.status(500).json({
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.get('/', async (req, res) => {
   if (req.query.id) {
@@ -45,6 +119,7 @@ router.post('/addProduct', async (req, res) => {
         title_product: req.body.title_product,
         desc_product: req.body.desc_product,
         price_product: req.body.price_product,
+        category: req.body.category,
         status: true
       })
 
