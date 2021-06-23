@@ -12,25 +12,25 @@ app.use(cors());
 app.options('*', cors());
 app.use('/uploads', express.static('uploads'));
 //midleware
-app.use('/*',(req,res, next)=>{
-console.log(req.originalUrl)
-    if (req.originalUrl === '/uploads/*') {
-        return next();
-        } else {
+// app.use('/*',(req,res, next)=>{
+// console.log(req.originalUrl)
+//     if (req.originalUrl === '/uploads/*') {
+//         return next();
+//         } else {
          
-            var token= req.headers['secret'];
-            if (token!=process.env.CONNECTION_SECRET){
-                console.log(req.originalUrl)
-                res.status(401);
-                res.end();
+//             var token= req.headers['secret'];
+//             if (token!=process.env.CONNECTION_SECRET){
+//                 console.log(req.originalUrl)
+//                 res.status(401);
+//                 res.end();
                
-            }
-            else{
-                next();
-            }
-        }
+//             }
+//             else{
+//                 next();
+//             }
+//         }
 
-});
+// });
 app.use(bodyParser.json());
 app.use('/', routing);
 

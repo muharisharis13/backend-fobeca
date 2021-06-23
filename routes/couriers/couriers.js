@@ -2,25 +2,12 @@ const express = require('express');
 const router = express.Router();
 const couriersModels = require('../../models/couriersModels')
 const Formidable = require('formidable')
+const path = require('path')
+const fs = require('fs')
+
 
 router.get('/', async (req, res) => {
     try {
-    //     var data = await couriersModels.aggregate([{$match:{ 'status': true },},
-    //   { $project: {
-    //     date: "$date",
-    //     full_name:"$full_name",
-    //     courier_info: {
-    //         _id: "$courier_info._id",
-    //         email:"$courier_info.email",
-    //         phone_number:" $courier_info.phone_number",
-    //         identity_card:  { $concat: [ process.env.WEB_URL,"uploads/ktp/",  "$courier_info.identity_card" ] },
-    //         photo: { $concat: [ process.env.WEB_URL,"uploads/photo/",  "$courier_info.photo" ] }
-    //     },
-    //     status:"$status",  
-        
-    //     } }
-    // ])
-
     var data = await couriersModels.find({'status':true})
         res.json(data)
     } catch (error) {
@@ -42,7 +29,9 @@ router.post('/', async function (req, res) {
             await photo.mv(`./uploads/photo/${photoName}`);
             await identity.mv(`./uploads/ktp/${identityName}`);
 
-            const post = new couriersModels({
+            const post = new couriersModels(
+                {
+                    $set: {
                 full_name: req.body.full_name,
                 courier_info: {
                     email: req.body.email,
@@ -51,17 +40,21 @@ router.post('/', async function (req, res) {
                     photo: photoName
                 },
                 status: true
-            })
+                }
+                })
             const save = await post.save();
             res.json(save)
-        }
-        else {
+        } else {
             res.send('There are no files')
         }
-    } catch (err) {
+
+    } catch (error) {
         res.status(500)
-        res.json({ message: error })
+        res.json({
+            message: err
+        })
     }
+
 })
 
 router.post('/:_getid', async (req, res) => {
