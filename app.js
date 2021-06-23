@@ -32,7 +32,7 @@ app.use('/uploads', express.static('uploads'));
 
 // });
 app.use(bodyParser.json());
-app.use('/api/v1', routing);
+app.use('/', routing);
 
 
 //connect database
