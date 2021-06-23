@@ -29,9 +29,9 @@ router.post('/', async function (req, res) {
             await photo.mv(`./uploads/photo/${photoName}`);
             await identity.mv(`./uploads/ktp/${identityName}`);
 
+            console.log(req.body)
             const post = new couriersModels(
                 {
-                    $set: {
                 full_name: req.body.full_name,
                 courier_info: {
                     email: req.body.email,
@@ -39,8 +39,7 @@ router.post('/', async function (req, res) {
                     identity_card: identityName,
                     photo: photoName
                 },
-                status: true
-                }
+                    status: true
                 })
             const save = await post.save();
             res.json(save)
@@ -51,7 +50,7 @@ router.post('/', async function (req, res) {
     } catch (error) {
         res.status(500)
         res.json({
-            message: err
+            message: error
         })
     }
 
