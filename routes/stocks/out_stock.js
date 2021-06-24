@@ -16,9 +16,11 @@ router.get('/', async (req, res) => {
                 as: "couries_id"
             },
         },
-   
+
     ])
-        
+
+        // let data = await transactionModels.find()
+
         // var list_item = await stockModels.find({ _id: { $in: data.item_order } })
         
         // data.item_order = list_item;
