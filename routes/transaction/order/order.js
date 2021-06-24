@@ -4,7 +4,6 @@ const orderModel = require('../../../models/orderModels')
 const userMobileAppModels = require('../../../models/mobile/userAppModels')
 const moment = require('moment')
 
-const number_random = Math.floor(Math.random() * 9999999)
 
 
 router.get('/completed', async function (req, res) {
@@ -24,8 +23,9 @@ router.get('/completed', async function (req, res) {
 })
 
 router.get('/onGoing', async function (req, res) {
+  const { id_user } = req.query
   try {
-    const get = await orderModel.find({ status: 'onProcess' })
+    const get = await orderModel.find({ status: 'onProcess', id_user: id_user })
 
     res.status(200).json({
       message: 'List Order On Going',
@@ -44,6 +44,8 @@ router.get('/onGoing', async function (req, res) {
 router.post('/', async function (req, res) {
   const { id_user, note, lat, long, id_carts, total, list_order } = req.body
   try {
+
+    const number_random = Math.floor(Math.random() * 9999999)
 
     const post = new orderModel({
       id_user: id_user,

@@ -49,6 +49,14 @@ const PostSchema = mongoose.Schema({
         type: Date,
         default:Date.now(),
     },
+    balance: {
+        type: String,
+        default: 0
+    },
+    deposit: {
+        type: String,
+        default: 0
+    }
 
 })
 module.exports=mongoose.model('carts', PostSchema);
