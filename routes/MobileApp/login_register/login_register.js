@@ -64,7 +64,7 @@ router.post('/login', async function (req, res) {
 
     }
     else {
-      res.json({
+      res.status(401).json({
         message: 'harus login'
       })
     }
