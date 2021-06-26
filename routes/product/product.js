@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const productModel = require('../../models/ProductModels')
 const userMobileModel = require('../../models/mobile/userAppModels')
+const { checkToken } = require('../../token/token')
 
 router.post('/removeFavorite', async function (req, res) {
   const { id, id_user } = req.body
@@ -75,7 +76,7 @@ router.post('/addFavorite', async function (req, res) {
   }
 })
 
-router.get('/', async (req, res) => {
+router.get('/', checkToken, async (req, res) => {
   if (req.query.id) {
     try {
       let data = await productModel.findOne({ '_id': req.query.id })

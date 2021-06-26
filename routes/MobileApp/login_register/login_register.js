@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 let crypto = require('crypto')
 const LoginRegisterUserModels = require('../../../models/mobile/userAppModels')
+const { createToken } = require('../../../token/token')
 
 
 router.delete('/delete', async function (req, res) {
@@ -49,7 +50,6 @@ router.get('/', async function (req, res) {
 router.post('/login', async function (req, res) {
   const { email, password } = req.body
   try {
-    if (email && password) {
       const save = await LoginRegisterUserModels.findOne({
         email: email,
         password: crypto.createHash('md5').update(password).digest('hex')
@@ -59,15 +59,11 @@ router.post('/login', async function (req, res) {
         data: {
           phone_number: save.phone_number,
           email: save.email
-        }
+        },
+        token: createToken({ payload: { phone_number: save.phone_number, email: save.email } })
       })
 
-    }
-    else {
-      res.status(401).json({
-        message: 'harus login'
-      })
-    }
+
 
   } catch (err) {
     res.status(500).json({
