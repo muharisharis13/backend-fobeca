@@ -10,6 +10,9 @@ const product_route = require('../routes/product/product')
 const useraccount_route = require('../routes/MobileApp/login_register/login_register')
 const merchant_routes = require('../routes/merchant/merchant')
 
+const message_routes = require('../routes/message/message')
+const favorite_routes = require('../routes/favorite/favorite')
+
 router.use('/stock', stock_route);
 router.use('/couriers', couriers_route);
 router.use('/purchasing', purchasing_route);
@@ -23,6 +26,8 @@ router.use('/login_register', login_register);
 router.use('/orders', order_route);
 router.use('/users', useraccount_route)
 router.use('/merchants', merchant_routes)
+router.use('/messages', message_routes)
+router.use('/favorites', favorite_routes)
 
 
 

@@ -31,7 +31,7 @@ app.use('/uploads', express.static('uploads'));
 //     }
 
 // });
-app.use(bodyParser());
+app.use(bodyParser.json());
 app.use('/', routing);
 
 

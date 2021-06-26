@@ -63,8 +63,7 @@ router.post('/addFavorite', async function (req, res) {
 
 
     res.json({
-      message: 'success',
-      data: save
+      message: 'success'
     })
 
 

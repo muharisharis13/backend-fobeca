@@ -1,9 +1,10 @@
 const mongoose = require('mongoose')
+const Schema = mongoose.Schema;
 
 
 const postSchema = mongoose.Schema({
   id_user: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true
   },
   note: {
@@ -22,12 +23,12 @@ const postSchema = mongoose.Schema({
   //   type: String,
   //   required: true
   // },
-  id_carts: { type: String, required: true }
+  id_carts: { type: Schema.Types.ObjectId, required: true }
   ,
   list_order: [
     {
       id_product: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true
       },
       price_product: {

@@ -4,6 +4,7 @@ const stockModels = require('../../models/stockModels')
 const transactionModels = require('../../models/transactionModels')
 const mongoose = require('mongoose');
 
+
 router.get('/', async (req, res) => {
     try {
         var data = await transactionModels.aggregate([
