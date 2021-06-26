@@ -47,10 +47,10 @@ router.get('/', async function (req, res) {
 })
 
 router.post('/login', async function (req, res) {
-  const { phone_number, password } = req.body
+  const { email, password } = req.body
   try {
     const save = await LoginRegisterUserModels.findOne({
-      phone_number: phone_number,
+      email: email,
       password: crypto.createHash('md5').update(password).digest('hex')
     })
 
@@ -88,6 +88,7 @@ router.post('/register', async function (req, res) {
     })
   }
   catch (err) {
+    res.status(500)
     res.json({
       message: 'Error',
       data: err
