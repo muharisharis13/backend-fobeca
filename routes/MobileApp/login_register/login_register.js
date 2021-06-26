@@ -49,18 +49,26 @@ router.get('/', async function (req, res) {
 router.post('/login', async function (req, res) {
   const { email, password } = req.body
   try {
-    const save = await LoginRegisterUserModels.findOne({
-      email: email,
-      password: crypto.createHash('md5').update(password).digest('hex')
-    })
+    if (email && password) {
+      const save = await LoginRegisterUserModels.findOne({
+        email: email,
+        password: crypto.createHash('md5').update(password).digest('hex')
+      })
+      res.json({
+        message: 'berhasil login',
+        data: {
+          phone_number: save.phone_number,
+          email: save.email
+        }
+      })
 
-    res.json({
-      message: 'berhasil login',
-      data: {
-        phone_number: save.phone_number,
-        email: save.email
-      }
-    })
+    }
+    else {
+      res.json({
+        message: 'harus login'
+      })
+    }
+
   } catch (err) {
     res.status(500).json({
       message: 'error',
