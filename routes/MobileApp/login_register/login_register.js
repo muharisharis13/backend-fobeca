@@ -54,7 +54,7 @@ router.post('/login', async function (req, res) {
         email: email,
         password: crypto.createHash('md5').update(password).digest('hex')
       })
-      res.json({
+    res.status(200).json({
         message: 'berhasil login',
         data: {
           phone_number: save.phone_number,
