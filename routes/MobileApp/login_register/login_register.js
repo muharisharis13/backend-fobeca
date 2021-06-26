@@ -54,14 +54,24 @@ router.post('/login', async function (req, res) {
         email: email,
         password: crypto.createHash('md5').update(password).digest('hex')
       })
-    res.status(200).json({
-        message: 'berhasil login',
-        data: {
-          phone_number: save.phone_number,
-          email: save.email
-        },
-        token: createToken({ payload: { phone_number: save.phone_number, email: save.email } })
-      })
+
+    if (save) {
+        res.status(200).json({
+          message: 'berhasil login',
+            // data: {
+            //   phone_number: save.phone_number,
+            //   email: save.email
+            // },
+            token: createToken({ payload: { phone_number: save.phone_number, email: save.email } }),
+            data: save
+          })
+
+      }
+      else {
+        res.status(401).json({
+          message: 'username atau password salah!'
+        })
+      }
 
 
 
