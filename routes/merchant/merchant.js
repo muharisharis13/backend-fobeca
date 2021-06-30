@@ -8,6 +8,28 @@ const orderModel = require('../../models/orderModels')
 const productModel = require('../../models/ProductModels')
 
 
+router.post('/order/:id_order', checkToken, async function (req, res) {
+  const { id_order } = req.params
+
+  try {
+
+    const save = await orderModel.findOneAndUpdate({ _id: id_order }, {
+      status: 'completed'
+    })
+
+    res.json({
+      message: 'success',
+      data: save
+    })
+
+  } catch (err) {
+    res.status(500).json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
 router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
   const { id_carts } = req.params
 
