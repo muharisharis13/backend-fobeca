@@ -18,7 +18,7 @@ router.post('/login', async function (req, res) {
 
       if (save === null) {
         res.json({
-          message: 'success',
+          message: 'error',
           data: 'email or password wrong !'
         })
       }
@@ -26,10 +26,15 @@ router.post('/login', async function (req, res) {
 
         res.json({
           message: 'success',
-          data: save,
-          token: createToken({
-            payload: { save }
-          })
+          data: {
+            token: createToken({
+              payload: { save }
+            }),
+            full_name: save.full_name,
+            _id: save._id,
+            carst_name: save.cart_detail.cart_name
+
+          },
         })
       }
 
