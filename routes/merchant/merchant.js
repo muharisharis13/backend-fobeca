@@ -5,26 +5,61 @@ const cartsModel = require('../../models/cartsModels')
 let crypto = require('crypto')
 const { createToken, checkToken } = require('../../token/token')
 const orderModel = require('../../models/orderModels')
+const productModel = require('../../models/ProductModels')
 
 
 router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
   const { id_carts } = req.params
+
+
   try {
-    await orderModel.find({ status: 'onProcess', id_carts: id_carts })
-      .then(hasil => {
-        if (hasil.length > 0) {
-          res.json({
-            message: 'success',
-            data: hasil
-          })
-        }
-        else {
-          res.json({
-            message: 'error',
-            data: 'Nothing Data'
-          })
-        }
+
+
+
+    let data = await orderModel.find({ status: 'onProcess', id_carts: id_carts })
+
+    let dataUser = await userModel.find()
+    let arrUser = id_user => dataUser.filter(user => `${user._id}` === `${id_user}`)[0]
+
+    let dataProduct = await productModel.find()
+    let arrProduct = id_product => dataProduct.filter(product => `${product._id}` === `${id_product}`)[0]
+
+
+    let dataResponse = data.map(item => ({
+      _id: item._id,
+      data_user: {
+        id_user: arrUser(item.id_user)._id,
+        email: arrUser(item.id_user).email,
+        phone_number: arrUser(item.id_user).phone_number
+      },
+      note: item.note,
+      total: item.total,
+      status: item.status,
+      invoice: item.invoice,
+      list_order: item.list_order.map(order => ({
+        id_product: order.id_product,
+        title_product: arrProduct(order.id_product).title_product,
+        price_product: order.price_product,
+        category: order.category,
+        qty: order.qty
+      }))
+    }))
+
+
+
+
+    if (dataResponse.length > 0) {
+      res.json({
+        message: 'success',
+        data: dataResponse,
       })
+    }
+    else {
+      res.json({
+        message: 'error',
+        data: 'Nothing Data'
+      })
+    }
 
   } catch (err) {
     res.status(500).json({
