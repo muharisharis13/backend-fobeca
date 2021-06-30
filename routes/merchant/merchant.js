@@ -61,6 +61,7 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
 
     let dataResponse = data.map(item => ({
       id_order: item._id,
+      id_cart: item.id_carts,
       full_name: arrUser(item.id_user).full_name,
       note: item.note,
       total: item.total,
