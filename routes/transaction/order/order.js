@@ -5,6 +5,7 @@ const userMobileAppModels = require('../../../models/mobile/userAppModels')
 const cartModels = require('../../../models/cartsModels')
 const moment = require('moment')
 const { json } = require('body-parser')
+const { checkToken } = require('../../../token/token')
 
 
 
@@ -14,7 +15,7 @@ const number_random = Math.floor(Math.random() * 9999999)
 
 
 router.get('/completed', async function (req, res) {
-  const { id_user } = req.query
+  const { id_user, id_carts } = req.query
   let dataUser
   try {
     if (id_user) {
@@ -23,11 +24,11 @@ router.get('/completed', async function (req, res) {
       await userMobileAppModels.findOne({ _id: id_user }).then(res => dataUser = res)
 
       res.status(200).json({
-        message: 'List History',
+        message: 'success',
         data: get.map(item => ({
           _id: item._id,
           date: item.date,
-          id_user: {
+          data_user: {
             _id: dataUser._id,
             email: dataUser.email,
             phone_number: dataUser.phone_number,
@@ -42,94 +43,143 @@ router.get('/completed', async function (req, res) {
       })
 
     }
+    else if (id_carts) {
+
+      const get2 = await orderModel.find({ status: 'completed', id_carts: id_carts })
+
+      res.status(200).json({
+        message: "success",
+        data: get2
+      })
+    }
     else {
       res.json({
-        message: 'Masukkan Id_user'
+        message: 'Masukkan Id'
       })
     }
   } catch (err) {
-    res.status(500)
     res.json({
-      message: err
+      message: 'error'
     })
   }
 })
 
-router.get('/onGoing', async function (req, res) {
-  const { id_user } = req.query
+router.get('/onGoing', checkToken, async function (req, res) {
+  const { id_user, id_carts } = req.query
   let dataUser
   try {
-    const get = await orderModel.find({ status: 'onProcess', id_user: id_user })
 
-    await userMobileAppModels.findOne({ _id: id_user }).then(res => dataUser = res)
+    if (id_user) {
+      const get = await orderModel.find({ status: 'onProcess', id_user: id_user })
 
-    res.status(200).json({
-      message: 'List Order On Going',
-      data: get.map(item =>
-      ({
-        _id: item._id,
-        date: item.date,
-        id_user: {
-          _id: dataUser._id,
-          email: dataUser.email,
-          phone_number: dataUser.phone_number,
-        },
-        note: item.note,
-        id_carts: item.id_carts,
-        total: item.total,
-        status: item.status,
-        invoice: item.invoice,
-        list_order: item.list_order,
-      })
-      )
-    })
+      await userMobileAppModels.findOne({ _id: id_user }).then(res => dataUser = res)
+
+      if (get.length > 0) {
+        res.status(200).json({
+          message: 'success',
+          data: get.map(item =>
+          ({
+            _id: item._id,
+            date: item.date,
+            id_user: {
+              _id: dataUser._id,
+              email: dataUser.email,
+              phone_number: dataUser.phone_number,
+            },
+            note: item.note,
+            id_carts: item.id_carts,
+            total: item.total,
+            status: item.status,
+            invoice: item.invoice,
+            list_order: item.list_order,
+          })
+          )
+        })
+
+      }
+      else {
+        res.json({
+          message: "Nothing On Going"
+        })
+      }
+
+    }
+    else if (id_carts) {
+      await orderModel.find({ status: 'onProcess', id_carts: id_carts })
+        .then(hasil => {
+          if (hasil.length > 0) {
+            res.status(200).json({
+              message: 'success',
+              data: hasil
+            })
+          }
+          else {
+            res.json({
+              message: 'Nothing On Going'
+            })
+          }
+        })
+    }
   } catch (err) {
     res.status(500)
     res.json({
-      message: err
+      message: 'error',
+      data: err
     })
   }
 })
 
 
 router.get('/', async function (req, res) {
-  const { id_order } = req.query
+  const { id_order, id_user, id_carts } = req.query
   let dataUser
   let dataCart
   let order
   try {
-    await orderModel.findOne({ _id: id_order }).then(async (res) => {
-      order = res
-      await userMobileAppModels.findOne({ _id: res.id_user }).then(user => dataUser = user)
-      await cartModels.findOne({ _id: res.id_carts }).then(cart => dataCart = cart)
+    if (id_order && id_user) {
+      await orderModel.findOne({ _id: id_order, id_user: id_user }).then(async (res) => {
+        order = res
+        await userMobileAppModels.findOne({ _id: res.id_user }).then(user => dataUser = user)
+        await cartModels.findOne({ _id: res.id_carts }).then(cart => dataCart = cart)
 
-    })
+      })
 
 
-    res.status(200).json({
-      message: 'success',
-      data: {
-        _id: order._id,
-        date: order.date,
-        note: order.note,
-        total: order.total,
-        status: order.status,
-        invoice: order.invoice,
-        list_order: order.list_order,
-        carts: {
-          _id: dataCart._id,
-          date: dataCart.date,
-          full_name: dataCart.full_name,
-          cart_detail: dataCart.cart_detail,
-        },
-        user: {
-          _id: dataUser._id,
-          createdAt: dataUser.createdAt,
-          phone_number: dataUser.phone_number,
-          email: dataUser.email,
+      res.status(200).json({
+        message: 'success',
+        data: {
+          _id: order._id,
+          date: order.date,
+          note: order.note,
+          total: order.total,
+          status: order.status,
+          invoice: order.invoice,
+          list_order: order.list_order,
+          data_carts: {
+            _id: dataCart._id,
+            date: dataCart.date,
+            full_name: dataCart.full_name,
+            cart_detail: dataCart.cart_detail,
+          },
+          data_user: {
+            _id: dataUser._id,
+            createdAt: dataUser.createdAt,
+            phone_number: dataUser.phone_number,
+            email: dataUser.email,
+          }
         }
-      }
-    })
+      })
+
+    }
+    else if (id_order && id_carts) {
+      await orderModel.findOne({ _id: id_order, id_carts: id_carts })
+        .then(hasil => {
+          res.json({
+            message: 'success',
+            data: hasil
+          })
+        })
+    }
   } catch (err) {
     res.status(500).json({
       message: 'error',
@@ -138,9 +188,13 @@ router.get('/', async function (req, res) {
   }
 })
 
-router.post('/', async function (req, res) {
-  const { id_user, note, id_carts, total, list_order } = req.body
-  const { status, id_order } = req.query
+
+
+// router to completed khusus merchant
+router.post('/:id_order', async function (req, res) {
+  const { id_order } = req.params
+  const { status } = req.body
+
   try {
 
     if (status === 'completed') {
@@ -148,21 +202,38 @@ router.post('/', async function (req, res) {
         status: status
       })
 
+
       res.status(200).json({
-        message: 'berhasil jadi completed',
+        message: 'success',
         data: data
       })
 
     }
     else {
+      res.json({
+        message: 'command salah'
+      })
+    }
+  } catch (err) {
+    res.json({
+      message: 'error'
+    })
+  }
+})
 
+
+router.post('/', async function (req, res) {
+  const { id_user, note, id_carts, total, list_order } = req.body
+
+
+  try {
       const post = new orderModel({
         id_user: id_user,
         note: note,
         id_carts: id_carts,
         total: total,
         status: 'onProcess',
-        invoice: `INVOICE${moment(Date.now()).format('DDMMyyy')}${number_random}`,
+        invoice: `INVOICE${moment(Date.now()).format('DDMMyyyhhmmss')}`,
         list_order: list_order
       })
 
@@ -181,7 +252,7 @@ router.post('/', async function (req, res) {
 
         const save = await post.save();
         res.json({
-          message: 'berhasil order',
+          message: 'success',
           data: save
         })
       }
@@ -192,16 +263,14 @@ router.post('/', async function (req, res) {
       }
 
 
-
-
-    }
-
   } catch (err) {
     res.status(500)
     res.json({
-      message: err
+      message: 'error',
+      data: err
     })
   }
+
 })
 
 

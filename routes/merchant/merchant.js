@@ -17,6 +17,31 @@ router.get('/', async function (req, res, { phone_number }) {
   }
 })
 
+router.post('/checkPhoneNumber', async function (req, res) {
+  const { phone_number } = req.body
+
+  try {
+
+    await userModel.findOne({ phone_number: phone_number })
+      .then(hasil => {
+        res.json({
+          messaage: 'success',
+          data: {
+            _id: hasil._id,
+            email: hasil.email,
+            phone_number: hasil.phone_number,
+            balance: hasil.balance
+          }
+        })
+      })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: 'data not exist'
+    })
+  }
+})
 
 router.post('/topup', async function (req, res) {
   const { amount, phone_number } = req.body
@@ -32,7 +57,7 @@ router.post('/topup', async function (req, res) {
       balance: JSON.stringify(total)
     })
     res.status(200).json({
-      message: 'berhasil top up',
+      message: 'success',
       data: {
         balance: amount,
         phone_number: save.phone_number

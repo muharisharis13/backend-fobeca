@@ -3,6 +3,7 @@ const router = express.Router()
 let crypto = require('crypto')
 const LoginRegisterUserModels = require('../../../models/mobile/userAppModels')
 const { createToken } = require('../../../token/token')
+const { getMaxListeners } = require('../../../models/mobile/userAppModels')
 
 
 router.delete('/delete', async function (req, res) {
@@ -14,7 +15,7 @@ router.delete('/delete', async function (req, res) {
     })
 
     res.status(200).json({
-      message: 'success delete user',
+      message: 'success',
     })
   } catch (err) {
     res.status(500).json({
@@ -28,17 +29,26 @@ router.get('/', async function (req, res) {
   try {
     const get = await LoginRegisterUserModels.find({ status: true })
 
-    res.status(200).json({
-      message: 'success',
-      data: get.map(get => ({
-        _id: get._id,
-        createdAt: get.createdAt,
-        email: get.email,
-        phone_number: get.phone_number,
-        status: get.status,
-        list_favorite: get.list_favorite
-      }))
-    })
+    if (get.length > 0) {
+      res.status(200).json({
+        message: 'success',
+        data: get.map(get => ({
+          _id: get._id,
+          createdAt: get.createdAt,
+          email: get.email,
+          phone_number: get.phone_number,
+          status: get.status,
+          list_favorite: get.list_favorite
+        }))
+      })
+
+    }
+    else {
+      res.json({
+        message: 'success',
+        daya: get
+      })
+    }
   } catch (err) {
     res.status(500).json({
       message: 'error',
@@ -47,33 +57,25 @@ router.get('/', async function (req, res) {
   }
 })
 
-router.post('/login', async function (req, res) {
+router.post('/login', async function (req, res, next) {
   const { email, password } = req.body
   try {
-      const save = await LoginRegisterUserModels.findOne({
-        email: email,
-        password: crypto.createHash('md5').update(password).digest('hex')
-      })
 
-    if (save) {
+    const save = await LoginRegisterUserModels.findOne({
+      email: email,
+      password: crypto.createHash('md5').update(password).digest('hex')
+    })
         res.status(200).json({
-          message: 'berhasil login',
-            // data: {
-            //   phone_number: save.phone_number,
-            //   email: save.email
-            // },
-            token: createToken({ payload: { phone_number: save.phone_number, email: save.email } }),
-            data: save
-          })
-
-      }
-      else {
-        res.status(401).json({
-          message: 'username atau password salah!'
+          message: 'success',
+          data: {
+            phone_number: save.phone_number,
+            email: save.email
+          },
+          token: createToken({ payload: { data: save } })
         })
-      }
 
 
+    next()
 
   } catch (err) {
     res.status(500).json({
@@ -97,14 +99,14 @@ router.post('/register', async function (req, res) {
   try {
     const save = await post.save();
     res.json({
-      message: 'Berhasil Registrasi',
+      message: 'success',
+
       data: save
     })
   }
   catch (err) {
-    res.status(500)
     res.json({
-      message: 'Error',
+      message: 'error',
       data: err
     })
   }

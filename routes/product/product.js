@@ -86,7 +86,7 @@ router.get('/', checkToken, async (req, res) => {
       })
     } catch (err) {
       res.status(500)
-      res.json({ message: error })
+      res.json({ message: err })
     }
 
   }
@@ -96,7 +96,7 @@ router.get('/', checkToken, async (req, res) => {
       res.json(data)
     } catch (err) {
       res.status(500)
-      res.json({ message: error })
+      res.json({ message: err })
     }
 
   }
