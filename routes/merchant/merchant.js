@@ -3,9 +3,36 @@ const router = express.Router()
 const userModel = require('../../models/mobile/userAppModels')
 const cartsModel = require('../../models/cartsModels')
 let crypto = require('crypto')
-const { createToken } = require('../../token/token')
+const { createToken, checkToken } = require('../../token/token')
+const orderModel = require('../../models/orderModels')
 
 
+router.get('/orders/ongoing', checkToken, async function (req, res) {
+  const { id_carts } = req.params
+  try {
+    await orderModel.find({ status: 'onProcess', id_carts: id_carts })
+      .then(hasil => {
+        if (hasil.length > 0) {
+          res.json({
+            message: 'success',
+            data: hasil
+          })
+        }
+        else {
+          res.json({
+            message: 'error',
+            data: 'Nothing Data'
+          })
+        }
+      })
+
+  } catch (err) {
+    res.status(500).json({
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.post('/login', async function (req, res) {
   const { email, password } = req.body

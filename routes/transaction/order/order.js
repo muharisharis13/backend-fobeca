@@ -64,7 +64,7 @@ router.get('/completed', async function (req, res) {
   }
 })
 
-router.get('/onGoing', checkToken, async function (req, res) {
+router.get('/ongoing', checkToken, async function (req, res) {
   const { id_user, id_carts } = req.query
   let dataUser
   try {
