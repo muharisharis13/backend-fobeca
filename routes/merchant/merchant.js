@@ -56,7 +56,7 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
       invoice: item.invoice,
       list_order: item.list_order.map(order => ({
         id_product: order.id_product,
-        title_product: arrProduct(order.id_product).title_product,
+        product_name: arrProduct(order.id_product).title_product,
         price_product: order.price_product,
         category: order.category,
         qty: order.qty
