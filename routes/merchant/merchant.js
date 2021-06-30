@@ -14,14 +14,31 @@ router.post('/order/completed', checkToken, async function (req, res) {
   try {
 
     if (status === 'completed') {
-      let save = await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_merchant }, {
+      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_merchant }, {
         status: 'completed'
+      }).then(hasil => {
+
+         res.json({
+           message: 'success',
+          data: {
+            date: hasil.date,
+            id_order: hasil._id,
+            id_user: hasil.id_user,
+            note: hasil.note,
+            id_merchant: hasil.id_merchant,
+            total: hasil.total,
+            status: status,
+            invoice: hasil.invoice,
+            list_order: hasil.list_order.map(order => ({
+              id_product: order.id_product,
+              price_product: order.price_product,
+              category: order.category,
+              qty: order.qty
+            }))
+          }
+        })
       })
 
-      res.json({
-        message: 'success',
-          data: save
-      })
 
 
     }
