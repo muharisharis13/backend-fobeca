@@ -10,25 +10,34 @@ const { createToken } = require('../../token/token')
 router.post('/login', async function (req, res) {
   const { email, password } = req.body
   try {
-    const save = await cartsModel.findOne({
-      password: crypto.createHash('md5').update(password).digest('hex'),
-      email: email,
-    })
-
-    if (save === null) {
-      res.json({
-        message: 'success',
-        data: 'email or password wrong !'
+    if (email && password) {
+      const save = await cartsModel.findOne({
+        password: crypto.createHash('md5').update(password).digest('hex'),
+        email: email,
       })
+
+      if (save === null) {
+        res.json({
+          message: 'success',
+          data: 'email or password wrong !'
+        })
+      }
+      else {
+
+        res.json({
+          message: 'success',
+          data: save,
+          token: createToken({
+            payload: { save }
+          })
+        })
+      }
+
     }
     else {
-
       res.json({
-        message: 'success',
-        data: save,
-        token: createToken({
-          payload: { save }
-        })
+        message: 'error',
+        data: 'Nothing Data Input'
       })
     }
 

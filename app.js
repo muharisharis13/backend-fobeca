@@ -45,7 +45,7 @@ db.once('open', function () {
     console.log('Database Is Connected')
 })
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 console.log(PORT)
 app.listen(PORT, function () {
     console.log(`Server Is Running is ${PORT}`)
