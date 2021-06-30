@@ -1,7 +1,33 @@
 const express = require('express')
 const router = express.Router()
 const userModel = require('../../models/mobile/userAppModels')
+const cartsModel = require('../../models/cartsModels')
+let crypto = require('crypto')
 
+
+
+router.post('/login', async function (req, res) {
+  const { email, password } = req.body
+  try {
+    const save = await cartsModel.findOne({
+      email: email,
+      password: crypto.createHash('md5').update(password)
+    })
+
+    res.json({
+      message: 'success',
+      data: save
+    })
+
+
+  } catch (err) {
+    res.status(500).json({
+
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.get('/', async function (req, res, { phone_number }) {
   try {

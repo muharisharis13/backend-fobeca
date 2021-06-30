@@ -9,7 +9,7 @@ const PostSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    courier_info: new mongoose.Schema({
+    carts_info: new mongoose.Schema({
         email:{
             type:String,
             required: true

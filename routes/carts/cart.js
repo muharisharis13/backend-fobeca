@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cartsModel = require('../../models/cartsModels')
+var crypto = require('crypto')
 
 router.get('/', async (req, res) => {
     try {
@@ -25,8 +26,8 @@ router.post('/', async (req, res) => {
 
             const post = new cartsModel({
                 full_name: req.body.full_name,
-                password: req.body.email,
-                cart_info: {
+                password: crypto.createHash('md5').update(req.body.password),
+                carts_info: {
                     email: req.body.email,
                     phone_number: req.body.phone_number,
                     identity_card: identityName,
