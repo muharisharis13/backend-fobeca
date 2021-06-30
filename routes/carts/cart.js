@@ -25,8 +25,7 @@ router.post('/', async (req, res) => {
 
             const post = new cartsModel({
                 full_name: req.body.full_name,
-                email: req.body.email,
-                password: req.body.password,
+                password: req.body.email,
                 cart_info: {
                     email: req.body.email,
                     phone_number: req.body.phone_number,
