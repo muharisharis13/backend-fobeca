@@ -9,12 +9,12 @@ const productModel = require('../../models/ProductModels')
 
 
 router.post('/order/completed', checkToken, async function (req, res) {
-  const { status, id_order, id_cart } = req.body
+  const { status, id_order, id_merchant } = req.body
 
   try {
 
     if (status === 'completed') {
-      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_cart }, {
+      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_merchant }, {
         status: 'completed'
       })
          .then(hasil => {
