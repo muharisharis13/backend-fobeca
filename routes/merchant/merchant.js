@@ -8,7 +8,7 @@ const orderModel = require('../../models/orderModels')
 const productModel = require('../../models/ProductModels')
 
 
-router.post('/order/', checkToken, async function (req, res) {
+router.post('/order/completed', checkToken, async function (req, res) {
   const { status, id_order } = req.body
 
   try {
