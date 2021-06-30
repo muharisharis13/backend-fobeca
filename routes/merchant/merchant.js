@@ -102,8 +102,8 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
     }
     else {
       res.json({
-        message: 'error',
-        data: 'Nothing Data'
+        message: 'success',
+        data: []
       })
     }
 
