@@ -5,6 +5,14 @@ const PostSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
     courier_info: new mongoose.Schema({
         email:{
             type:String,
@@ -49,14 +57,14 @@ const PostSchema = mongoose.Schema({
         type: Date,
         default:Date.now(),
     },
-    balance: {
-        type: String,
-        default: 0
-    },
-    deposit: {
-        type: String,
-        default: 0
-    }
+    // balance: {
+    //     type: String,
+    //     default: 0
+    // },
+    // deposit: {
+    //     type: String,
+    //     default: 0
+    // }
 
 })
 module.exports=mongoose.model('carts', PostSchema);
