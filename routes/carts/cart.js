@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 
             const post = new cartsModel({
                 full_name: req.body.full_name,
-                password: crypto.createHash('md5').update(req.body.password),
+                password: crypto.createHash('md5').update(req.body.password).digest('hex'),
                 carts_info: {
                     email: req.body.email,
                     phone_number: req.body.phone_number,
