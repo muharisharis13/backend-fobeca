@@ -14,14 +14,17 @@ router.post('/order/completed', checkToken, async function (req, res) {
   try {
 
     if (status === 'completed') {
-      const save = await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_cart }, {
+      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_cart }, {
         status: 'completed'
       })
+         .then(hasil => {
+           res.json({
+             message: 'success',
+          data: hasil
+        })
 
-      res.json({
-        message: 'success',
-        data: save
       })
+
 
     }
     else {
@@ -57,7 +60,7 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
 
 
     let dataResponse = data.map(item => ({
-      _id: item._id,
+      id_order: item._id,
       full_name: arrUser(item.id_user).full_name,
       note: item.note,
       total: item.total,
