@@ -29,7 +29,7 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
       _id: item._id,
       data_user: {
         id_user: arrUser(item.id_user)._id,
-        email: arrUser(item.id_user).email,
+        full_name: arrUser(item.id_user).full_name,
         phone_number: arrUser(item.id_user).phone_number
       },
       note: item.note,
