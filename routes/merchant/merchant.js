@@ -11,10 +11,7 @@ router.post('/login', async function (req, res) {
   try {
     const save = await cartsModel.findOne({
       password: crypto.createHash('md5').update(password).digest('hex'),
-      carts_info: {
-        email: email,
-
-      }
+      email: email,
     })
 
     res.json({
