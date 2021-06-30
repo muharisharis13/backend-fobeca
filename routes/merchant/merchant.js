@@ -15,13 +15,22 @@ router.post('/login', async function (req, res) {
       email: email,
     })
 
-    res.json({
-      message: 'success',
-      data: save,
-      token: createToken({
-        payload: { save }
+    if (save === null) {
+      res.json({
+        message: 'success',
+        data: 'email or password wrong !'
       })
-    })
+    }
+    else {
+
+      res.json({
+        message: 'success',
+        data: save,
+        token: createToken({
+          payload: { save }
+        })
+      })
+    }
 
 
   } catch (err) {
