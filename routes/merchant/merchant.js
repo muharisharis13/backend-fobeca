@@ -8,19 +8,28 @@ const orderModel = require('../../models/orderModels')
 const productModel = require('../../models/ProductModels')
 
 
-router.post('/order/:id_order', checkToken, async function (req, res) {
-  const { id_order } = req.params
+router.post('/order/', checkToken, async function (req, res) {
+  const { status, id_order } = req.body
 
   try {
 
-    const save = await orderModel.findOneAndUpdate({ _id: id_order }, {
-      status: 'completed'
-    })
+    if (status === 'completed') {
+      const save = await orderModel.findOneAndUpdate({ _id: id_order }, {
+        status: 'completed'
+      })
 
-    res.json({
-      message: 'success',
-      data: save
-    })
+      res.json({
+        message: 'success',
+        data: save
+      })
+
+    }
+    else {
+      res.status(400).json({
+        message: 'error',
+        data: `Status ${status} Tidak Di Kenal`
+      })
+    }
 
   } catch (err) {
     res.status(500).json({
