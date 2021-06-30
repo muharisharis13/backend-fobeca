@@ -7,7 +7,7 @@ const { createToken, checkToken } = require('../../token/token')
 const orderModel = require('../../models/orderModels')
 
 
-router.get('/orders/ongoing', checkToken, async function (req, res) {
+router.get('/order/ongoing', checkToken, async function (req, res) {
   const { id_carts } = req.params
   try {
     await orderModel.find({ status: 'onProcess', id_carts: id_carts })
@@ -40,7 +40,7 @@ router.post('/login', async function (req, res) {
     if (email && password) {
       const save = await cartsModel.findOne({
         password: crypto.createHash('md5').update(password).digest('hex'),
-        email: email,
+        email: email.toLowerCase(),
       })
 
       if (save === null) {
