@@ -19,7 +19,7 @@ router.post('/login', async function (req, res) {
       if (save === null) {
         res.json({
           message: 'error',
-          data: 'email or password wrong !'
+          data: 'Email atau Password Salah !'
         })
       }
       else {
@@ -42,7 +42,7 @@ router.post('/login', async function (req, res) {
     else {
       res.json({
         message: 'error',
-        data: 'Nothing Data Input'
+        data: 'Email atau Password Salah !'
       })
     }
 
