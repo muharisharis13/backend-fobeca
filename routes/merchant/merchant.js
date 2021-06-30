@@ -3,6 +3,7 @@ const router = express.Router()
 const userModel = require('../../models/mobile/userAppModels')
 const cartsModel = require('../../models/cartsModels')
 let crypto = require('crypto')
+const { createToken } = require('../../token/token')
 
 
 
@@ -16,7 +17,10 @@ router.post('/login', async function (req, res) {
 
     res.json({
       message: 'success',
-      data: save
+      data: save,
+      token: createToken({
+        payload: { save }
+      })
     })
 
 
