@@ -27,11 +27,7 @@ router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
 
     let dataResponse = data.map(item => ({
       _id: item._id,
-      data_user: {
-        id_user: arrUser(item.id_user)._id,
-        full_name: arrUser(item.id_user).full_name,
-        phone_number: arrUser(item.id_user).phone_number
-      },
+      full_name: arrUser(item.id_user).full_name,
       note: item.note,
       total: item.total,
       status: item.status,
