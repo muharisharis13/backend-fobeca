@@ -7,7 +7,7 @@ const { createToken, checkToken } = require('../../token/token')
 const orderModel = require('../../models/orderModels')
 
 
-router.get('/order/ongoing', checkToken, async function (req, res) {
+router.get('/order/ongoing/:id_carts', checkToken, async function (req, res) {
   const { id_carts } = req.params
   try {
     await orderModel.find({ status: 'onProcess', id_carts: id_carts })
