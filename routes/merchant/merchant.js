@@ -217,23 +217,32 @@ router.post('/checkPhoneNumber', checkToken, async function (req, res) {
 router.post('/topup', async function (req, res) {
   const { amount, phone_number } = req.body
   try {
-    let balanceUser
-    await userModel.findOne({ phone_number: phone_number }).then(res => {
-      balanceUser = res.balance
-    })
+    if (amount && phone_number) {
+      let balanceUser
+      await userModel.findOne({ phone_number: phone_number }).then(res => {
+        balanceUser = res.balance
+      })
 
-    let total = parseInt(balanceUser) + parseInt(amount)
+      let total = parseInt(balanceUser) + parseInt(amount)
 
-    const save = await userModel.findOneAndUpdate({ phone_number: phone_number }, {
-      balance: JSON.stringify(total)
-    })
-    res.status(200).json({
-      message: 'success',
-      data: {
-        balance: amount,
-        phone_number: save.phone_number
-      }
-    })
+      const save = await userModel.findOneAndUpdate({ phone_number: phone_number }, {
+        balance: JSON.stringify(total)
+      })
+      res.status(200).json({
+        message: 'success',
+        data: {
+          balance: amount,
+          phone_number: save.phone_number
+        }
+      })
+
+    }
+    else {
+      res.json({
+        message: 'error',
+        data: 'tidak ada amount atau phone number'
+      })
+    }
   } catch (err) {
     res.status(500).json({
       message: 'error',
