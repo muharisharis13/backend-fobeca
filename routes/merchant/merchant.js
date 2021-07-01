@@ -178,28 +178,38 @@ router.get('/', async function (req, res, { phone_number }) {
   }
 })
 
-router.post('/checkPhoneNumber', async function (req, res) {
+router.post('/checkPhoneNumber', checkToken, async function (req, res) {
   const { phone_number } = req.body
 
   try {
 
     await userModel.findOne({ phone_number: phone_number })
       .then(hasil => {
-        res.json({
-          messaage: 'success',
-          data: {
-            _id: hasil._id,
-            email: hasil.email,
-            phone_number: hasil.phone_number,
-            balance: hasil.balance
+        if (hasil === null) {
+          res.json({
+            message: 'error',
+            data: 'data tidak ada'
+          })
+        }
+        else {
+            res.json({
+              messaage: 'success',
+              data: {
+                id_user: hasil._id,
+                email: hasil.email,
+                phone_number: hasil.phone_number,
+                full_name: hasil.full_name
+              }
+            })
+
           }
-        })
       })
+
 
   } catch (err) {
     res.json({
       message: 'error',
-      data: 'data not exist'
+      data: 'data tidak ada'
     })
   }
 })
