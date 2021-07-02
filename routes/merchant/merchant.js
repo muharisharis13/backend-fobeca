@@ -8,6 +8,103 @@ const orderModel = require('../../models/orderModels')
 const productModel = require('../../models/ProductModels')
 
 
+router.post('/product/:id_product', checkToken, async function (req, res) {
+
+
+
+  try {
+
+    // await productModel.findOne({ _id: req.params.id_product }).then(hasil => res.json(hasil))
+    if (req.files) {
+      const { id_product } = req.params
+      const { product_name, caption, price_product, category } = req.body
+      const image_product = req.files.image_product
+
+      await image_product.mv(`./uploads/imageProduct/${image_product.name}`)
+
+      const post = await productModel.findOneAndUpdate({ _id: id_product }, {
+        image_product: image_product.name,
+        title_product: product_name,
+        desc_product: caption,
+        price_product: price_product,
+        category: category,
+        status: true
+      })
+
+
+      res.json({
+        message: 'success',
+        data: post
+      })
+    }
+    else {
+
+
+
+      const post = await productModel.findOneAndUpdate({ _id: req.params.id_product }, {
+        image_product: req.body.image_name,
+        title_product: req.body.product_name,
+        desc_product: req.body.caption,
+        price_product: req.body.price_product,
+        category: req.body.category,
+        status: true
+      })
+
+
+
+      res.json({
+        message: 'success',
+        data: post
+      })
+    }
+
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+
+router.get('/product', checkToken, async function (req, res) {
+
+  try {
+    await productModel.find().then(hasil => {
+      res.json({
+        message: 'success',
+        data: hasil
+      })
+    })
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: []
+    })
+  }
+})
+
+router.get('/order/completed/:id_merchant', checkToken, async function (req, res) {
+  const { id_merchant } = req.params
+
+  try {
+
+    await orderModel.find({ id_carts: id_merchant }).then(hasil => {
+      res.json({
+        message: 'success',
+        data: hasil
+      })
+    })
+
+  } catch (err) {
+    res.json({
+      messaage: 'error',
+      data: err
+    })
+  }
+})
+
 router.post('/order/completed', checkToken, async function (req, res) {
   const { status, id_order, id_merchant } = req.body
 
