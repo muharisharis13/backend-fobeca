@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const moment = require('moment')
+const date = require('date-fns')
 
 const PostSchema = mongoose.Schema({
     _id: {
         type: String,
         required: true,
-        default: `CARTS${moment(Date.now()).format('YYYYMMDDhhmmsst')}`,
+        default: `CARTS${date(new Date(), 'YYYYMMDDhhmmsst')}`,
         unique: true
     },
     full_name: {
