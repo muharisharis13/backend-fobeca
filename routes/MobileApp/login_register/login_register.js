@@ -3,7 +3,6 @@ const router = express.Router()
 let crypto = require('crypto')
 const LoginRegisterUserModels = require('../../../models/mobile/userAppModels')
 const { createToken } = require('../../../token/token')
-const { getMaxListeners } = require('../../../models/mobile/userAppModels')
 
 
 router.delete('/delete', async function (req, res) {
