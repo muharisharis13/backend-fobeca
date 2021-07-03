@@ -25,7 +25,6 @@ router.post('/', async (req, res) => {
             await identity.mv(`./uploads/ktp/${identityName}`);
 
             const post = new cartsModel({
-                _id: getNextSequenceValue("cartsid"),
                 full_name: req.body.full_name,
                 password: crypto.createHash('md5').update(req.body.password).digest('hex'),
                 email: req.body.email,

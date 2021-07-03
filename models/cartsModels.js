@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 const moment = require('moment')
+const Schema = mongoose.Schema;
 
 const PostSchema = mongoose.Schema({
-
+    _id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        default: `CARTS${moment(new Date()).format('YYYYMMDDhhmmss')}`
+    },
     full_name: {
         type: String,
         required: true
