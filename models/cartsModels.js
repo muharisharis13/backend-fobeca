@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const PostSchema = mongoose.Schema({
     _id: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
         default: `CARTS${moment(new Date()).format('YYYYMMDDhhmmss')}`
     },
@@ -60,14 +60,7 @@ const PostSchema = mongoose.Schema({
         type: Date,
         default:Date.now(),
     },
-    // balance: {
-    //     type: String,
-    //     default: 0
-    // },
-    // deposit: {
-    //     type: String,
-    //     default: 0
-    // }
+
 
 })
 module.exports=mongoose.model('carts', PostSchema);
