@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const moment = require('moment')
-const Schema = mongoose.Schema;
 
 const PostSchema = mongoose.Schema({
     _id: {
         type: String,
         required: true,
-        default: `CARTS${moment(new Date()).format('YYYYMMDDhhmmss')}`
+        default: `CARTS${moment(new Date()).format('YYYYMMDDhhmmss')}`,
+        unique: true
     },
     full_name: {
         type: String,
@@ -18,12 +18,14 @@ const PostSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
-    carts_info: new mongoose.Schema({
+    carts_info: {
         phone_number:{
             type:String,
-            required: true
+            required: true,
+            unique: true
         },
         identity_card:{
             type:String,
@@ -33,8 +35,8 @@ const PostSchema = mongoose.Schema({
             type: String,
             required: true
         },
-    }),
-    cart_detail: new mongoose.Schema({
+    },
+    cart_detail: {
         cart_name:{
             type:String,
             required: true
@@ -51,7 +53,7 @@ const PostSchema = mongoose.Schema({
             type: String,
             required: true
         },
-    }),
+    },
     status:{
         type: Boolean,
         required: true
