@@ -100,7 +100,6 @@ router.post('/register', async function (req, res) {
     const save = await post.save();
     res.json({
       message: 'success',
-
       data: save
     })
   }
