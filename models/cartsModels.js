@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 const moment = require('moment')
 
 const PostSchema = mongoose.Schema({
-    _id: {
-        type: String,
-        required: true,
-    },
+
     full_name: {
         type: String,
         required: true
