@@ -5,7 +5,6 @@ const PostSchema = mongoose.Schema({
     _id: {
         type: String,
         required: true,
-        default: `CARTS${moment(new Date()).format('YYYYMMDDhhmmss')}`
     },
     full_name: {
         type: String,
