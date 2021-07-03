@@ -1,13 +1,7 @@
 const mongoose = require('mongoose');
-const date = require('date-fns')
 
 const PostSchema = mongoose.Schema({
-    _id: {
-        type: String,
-        required: true,
-        default: `CARTS${date(new Date(), 'YYYYMMDDhhmmsst')}`,
-        unique: true
-    },
+
     full_name: {
         type: String,
         required: true
