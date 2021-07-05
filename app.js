@@ -7,6 +7,11 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 require('dotenv').config();
 
+const autoIncrement = require('mongoose-auto-increment');
+
+const CartsModel = require('./models/cartsModels')
+
+
 app.use(fileUpload());
 app.use(cors());
 app.options('*', cors());
@@ -39,6 +44,10 @@ app.use('/', routing);
 mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUrlParser: true }, () => console.log('connect to db'));
 
 let db = mongoose.connection
+
+
+
+
 
 db.on('error', console.error.bind(console, 'Database connect Error!'))
 db.once('open', function () {

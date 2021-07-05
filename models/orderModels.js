@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
+let AI = require('mongoose-auto-increment')
 
 
 const postSchema = mongoose.Schema({
@@ -58,5 +59,8 @@ const postSchema = mongoose.Schema({
     default: Date.now()
   }
 })
+AI.initialize(mongoose.connection);
+
+postSchema.plugin(AI.plugin, 'order')
 
 module.exports = mongoose.model('order', postSchema)

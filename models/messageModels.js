@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+let AI = require('mongoose-auto-increment')
 
 const postSchema = mongoose.Schema({
   date: {
@@ -10,5 +11,8 @@ const postSchema = mongoose.Schema({
   content: { type: String, required: true },
   status: { type: Boolean, required: true }
 })
+AI.initialize(mongoose.connection);
+
+postSchema.plugin(AI.plugin, 'message')
 
 module.exports = mongoose.model('message', postSchema)

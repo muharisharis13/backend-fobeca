@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+let AI = require('mongoose-auto-increment')
 const PostSchema = mongoose.Schema({
     carts_id: {
         type: Schema.Types.ObjectId,
@@ -27,4 +28,7 @@ const PostSchema = mongoose.Schema({
         default:Date.now(),
     },
 })
+AI.initialize(mongoose.connection);
+
+PostSchema.plugin(AI.plugin, 'transaction')
 module.exports=mongoose.model('transaction', PostSchema);
