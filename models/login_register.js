@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-let AI = require('mongoose-auto-increment')
 
 const PostSchema = mongoose.Schema({
     full_name: {
@@ -29,8 +28,4 @@ const PostSchema = mongoose.Schema({
     },
 
 })
-
-AI.initialize(mongoose.connection);
-
-PostSchema.plugin(AI.plugin, 'user_account')
 module.exports=mongoose.model('user_account', PostSchema);

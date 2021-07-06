@@ -233,7 +233,7 @@ router.post('/', async function (req, res) {
         id_carts: id_carts,
         total: total,
         status: 'onProcess',
-        invoice: `INVOICE${moment(Date.now()).format('DDMMyyyhhmmss')}`,
+        invoice: `INVOICE${moment(new Date()).format('YYYYMMDDhhmmss')}`,
         list_order: list_order
       })
 

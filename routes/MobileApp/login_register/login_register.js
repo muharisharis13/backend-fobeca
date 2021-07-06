@@ -55,6 +55,38 @@ router.get('/', async function (req, res) {
     })
   }
 })
+router.get('/details/:id_user', async function (req, res) {
+  const { id_user } = req.params
+  try {
+    const get = await LoginRegisterUserModels.find({ status: true, _id: id_user })
+
+    if (get.length > 0) {
+      res.status(200).json({
+        message: 'success',
+        data: get.map(get => ({
+          _id: get._id,
+          createdAt: get.createdAt,
+          email: get.email,
+          phone_number: get.phone_number,
+          status: get.status,
+          list_favorite: get.list_favorite
+        }))
+      })
+
+    }
+    else {
+      res.json({
+        message: 'error',
+        daya: get
+      })
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.post('/login', async function (req, res, next) {
   const { email, password } = req.body

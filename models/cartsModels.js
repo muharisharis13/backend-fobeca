@@ -1,7 +1,9 @@
+const moment = require('moment');
 const mongoose = require('mongoose');
-var autoIncrement = require('mongoose-auto-increment');
+const { format } = require('date-fns')
 
 const PostSchema = mongoose.Schema({
+
     full_name: {
         type: String,
         required: true
@@ -60,8 +62,5 @@ const PostSchema = mongoose.Schema({
 
 })
 
-autoIncrement.initialize(mongoose.connection);
-
-PostSchema.plugin(autoIncrement.plugin, 'carts');
 
 module.exports=mongoose.model('carts', PostSchema);

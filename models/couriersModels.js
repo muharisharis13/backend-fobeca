@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-let AI = require('mongoose-auto-increment')
 
 
 const PostSchema = mongoose.Schema({
@@ -34,9 +33,5 @@ const PostSchema = mongoose.Schema({
         default:Date.now(),
     },
 })
-
-AI.initialize(mongoose.connection);
-
-PostSchema.plugin(AI.plugin, 'couriers')
 
 module.exports=mongoose.model('couriers', PostSchema);
