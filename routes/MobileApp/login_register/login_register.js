@@ -68,7 +68,8 @@ router.get('/details/:id_user', async function (req, res) {
           createdAt: get[0].createdAt,
           email: get[0].email,
           phone_number: get[0].phone_number,
-          balance: get[0].balance
+          balance: get[0].balance,
+          full_name: get[0].full_name
         }
       })
 
