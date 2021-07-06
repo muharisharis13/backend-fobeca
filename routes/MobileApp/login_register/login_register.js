@@ -63,14 +63,13 @@ router.get('/details/:id_user', async function (req, res) {
     if (get.length > 0) {
       res.status(200).json({
         message: 'success',
-        data: get.map(get => ({
-          _id: get._id,
-          createdAt: get.createdAt,
-          email: get.email,
-          phone_number: get.phone_number,
-          status: get.status,
-          list_favorite: get.list_favorite
-        }))
+        data: {
+          id_user: get[0]._id,
+          createdAt: get[0].createdAt,
+          email: get[0].email,
+          phone_number: get[0].phone_number,
+          balance: get[0].balance
+        }
       })
 
     }
