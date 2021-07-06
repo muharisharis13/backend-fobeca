@@ -99,10 +99,11 @@ router.post('/login', async function (req, res, next) {
         res.status(200).json({
           message: 'success',
           data: {
+            id_user: save._id,
             phone_number: save.phone_number,
-            email: save.email
-          },
-          token: createToken({ payload: { data: save } })
+            email: save.email,
+            token: createToken({ payload: { data: save } })
+          }
         })
 
 
