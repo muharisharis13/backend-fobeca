@@ -29,32 +29,32 @@ router.post('/outlet/near', async function (req, res) {
 
 
   try {
-    res.json({
-      message: 'success',
-      lat: latitude,
-      longitude: longitude
-    })
+    // res.json({
+    //   message: 'success',
+    //   lat: latitude,
+    //   longitude: longitude
+    // })
 
-    // if(latitude && longitude){
+    if (latitude && longitude) {
 
-    //   let data
-    //   await merchantModel.find().then(hasil => data = hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5)
-    //   )
-
-
+      let data
+      await merchantModel.find().then(hasil => data = hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5)
+      )
 
 
-    //   res.json({
-    //     massege: 'success',
-    //     data: data
-    //   })
-    // }
-    // else{
-    //   res.json({
-    //     message:'error',
-    //     data: 'error data'
-    //   })
-    // }
+
+
+      res.json({
+        massege: 'success',
+        data: data
+      })
+    }
+    else {
+      res.json({
+        message: 'error',
+        data: 'error data'
+      })
+    }
 
 
 
