@@ -24,12 +24,13 @@ function getDistanceFromLatLonInKm({ lat1, lon1, lat2, lon2 }) {
 }
 
 
-router.get('/outlet/near', async function (req, res) {
+router.post('/outlet/near', async function (req, res) {
   const { latitude, longitude } = req.body
 
 
   try {
     res.json({
+      message: 'success',
       lat: latitude,
       longitude: longitude
     })
