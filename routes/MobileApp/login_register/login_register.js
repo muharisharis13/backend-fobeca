@@ -3,7 +3,56 @@ const router = express.Router()
 let crypto = require('crypto')
 const LoginRegisterUserModels = require('../../../models/mobile/userAppModels')
 const { createToken } = require('../../../token/token')
+const merchantModel = require('../../../models/cartsModels')
 
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
+}
+
+function getDistanceFromLatLonInKm({ lat1, lon1, lat2, lon2 }) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2 - lat1);  // deg2rad below
+  var dLon = deg2rad(lon2 - lon1);
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    ;
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+
+router.get('/outlet/near', async function (req, res) {
+  const { latitude, longitude } = req.body
+
+
+  try {
+
+    let data
+    await merchantModel.find().then(hasil => data = hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5)
+    )
+
+
+
+
+    res.json({
+      massege: 'success',
+      data: data
+    })
+
+
+
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+
+})
 
 router.delete('/delete', async function (req, res) {
   const { id } = req.query
