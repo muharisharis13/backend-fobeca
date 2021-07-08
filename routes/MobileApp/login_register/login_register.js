@@ -24,30 +24,37 @@ function getDistanceFromLatLonInKm({ lat1, lon1, lat2, lon2 }) {
 }
 
 
+
+
+
 router.post('/outlet/near', async function (req, res) {
   const { latitude, longitude } = req.body
 
 
   try {
-    // res.json({
-    //   message: 'success',
-    //   lat: latitude,
-    //   longitude: longitude
-    // })
+
 
     if (latitude && longitude) {
 
-      let data
-      await merchantModel.find().then(hasil => data = hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5)
+
+      await merchantModel.find().then(hasil =>
+
+        res.json({
+          massege: 'success',
+          data: hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5).map(item => ({
+            id_merchant: item._id,
+            cart_name: item.cart_detail.cart_name,
+            address: item.cart_detail.address,
+            lat: item.cart_detail.lat,
+            long: item.cart_detail.long,
+            distance: parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: item.cart_detail.lat, lon2: item.cart_detail.long })).toFixed(1)
+          }))
+        })
       )
 
 
 
 
-      res.json({
-        massege: 'success',
-        data: data
-      })
     }
     else {
       res.json({
