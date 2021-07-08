@@ -4,6 +4,7 @@ let crypto = require('crypto')
 const LoginRegisterUserModels = require('../../../models/mobile/userAppModels')
 const { createToken } = require('../../../token/token')
 const merchantModel = require('../../../models/cartsModels')
+const productModel = require('../../../models/ProductModels')
 
 function deg2rad(deg) {
   return deg * (Math.PI / 180)
@@ -25,7 +26,23 @@ function getDistanceFromLatLonInKm({ lat1, lon1, lat2, lon2 }) {
 
 
 
+router.get('/allproduct', async function (req, res) {
+  try {
 
+    let data = await productModel.find()
+
+    res.json({
+      message: 'success',
+      data: data
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.post('/outlet/near', async function (req, res) {
   const { latitude, longitude } = req.body
