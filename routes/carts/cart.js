@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
                     photo: photoName
                 },
                 cart_detail: {
-                    cart_name: req.body.email,
+                    cart_name: req.body.cart_name,
                     address: req.body.address,
                     long: req.body.long,
                     lat:req.body.lat,

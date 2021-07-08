@@ -41,7 +41,9 @@ router.post('/outlet/near', async function (req, res) {
 
         res.json({
           massege: 'success',
-          data: hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5).map(item => ({
+          data: hasil.filter(hasil => parseFloat(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: hasil.cart_detail.lat, lon2: hasil.cart_detail.long })).toFixed(1) < 5)
+            .sort((a, b) => (parseInt(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: a.cart_detail.lat, lon2: a.cart_detail.long })) > parseInt(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: b.cart_detail.lat, lon2: b.cart_detail.long })) ? 1 : parseInt(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: b.cart_detail.lat, lon2: b.cart_detail.long })) > parseInt(getDistanceFromLatLonInKm({ lat1: latitude, lon1: longitude, lat2: a.cart_detail.lat, lon2: a.cart_detail.long })) ? -1 : 0))
+            .map(item => ({
             id_merchant: item._id,
             cart_name: item.cart_detail.cart_name,
             address: item.cart_detail.address,
