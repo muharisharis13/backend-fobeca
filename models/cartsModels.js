@@ -55,6 +55,10 @@ const PostSchema = mongoose.Schema({
         type: Boolean,
         required: true
     },
+    open: {
+        type: Boolean,
+        required: true
+    },
     date: {
         type: Date,
         default:Date.now(),

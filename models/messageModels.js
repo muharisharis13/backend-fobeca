@@ -8,7 +8,8 @@ const postSchema = mongoose.Schema({
   image: { type: String, required: true },
   title: { type: String, required: true },
   content: { type: String, required: true },
-  status: { type: Boolean, required: true }
+  status: { type: Boolean, required: true },
+  arr_view: { type: Array }
 })
 
 module.exports = mongoose.model('message', postSchema)

@@ -14,6 +14,8 @@ const message_routes = require('../routes/message/message')
 const favorite_routes = require('../routes/favorite/favorite')
 const spv_routes = require('../routes/webApp/SPV/spv')
 
+const voucher_routes = require('../routes/voucher/voucher')
+
 
 
 router.use('/stock', stock_route);
@@ -33,6 +35,7 @@ router.use('/users', useraccount_route)
 router.use('/merchants', merchant_routes)
 router.use('/messages', message_routes)
 router.use('/favorites', favorite_routes)
+router.use('/vouchers', voucher_routes)
 
 
 

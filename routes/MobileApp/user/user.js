@@ -9,10 +9,11 @@ const bagBucket = require('../../../models/bagBucketModels')
 const jwt_decode = require('jwt-decode')
 const orderModels = require('../../../models/orderModels')
 const userAppModels = require('../../../models/mobile/userAppModels')
-const testingmodels = require('../../../models/testingmodels')
+const messageModels = require('../../../models/messageModels')
 const bagBucketModels = require('../../../models/bagBucketModels')
 const moment = require('moment')
 const multer = require('multer')
+const VoucherModels = require('../../../models/VoucherModels')
 
 
 let storageFile = multer.diskStorage({
@@ -48,8 +49,103 @@ function getId({ req }) {
   return jwt_decode(req.headers.authorization.split(" ")[1]).data._id
 }
 
+router.get('/voucher', checkToken, async function (req, res) {
+  const id = getId({ req: req })
+  try {
+    let data = await VoucherModels.find()
 
-router.get('/favorite/get', async function (req, res) {
+
+    // let data2 = data.filter((item) => item.list_user.indexOf(id) < 0)
+    let data2 = data.filter((item) => item.list_user.indexOf(id) < 0).map(item => ({
+      id_voucher: item._id,
+      title: item.title,
+      desc: item.desc,
+      min_amount: parseInt(item.min_ammount),
+      max_disc: parseInt(item.max_disc),
+      percentage: parseInt(item.percentage),
+      list_user: item.list_user
+    }))
+
+    res.json({
+      message: 'success',
+      data: data2
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+
+router.get('/message', checkToken, async function (req, res) {
+  const { id } = req.query
+
+  const id_user1 = getId({ req: req })
+  try {
+    if (id) {
+      let message1
+
+      await messageModels.findOne({ _id: id }).then(
+        hasil => {
+          if (hasil.arr_view.filter(arr => `${arr}` === `${id_user1}`).length > 0) {
+            messageModels.findOne({ _id: id }).then(res1 => res.json({
+              message: 'success',
+              data: res1
+            }))
+          }
+          else {
+            messageModels.findOneAndUpdate({ _id: id }, {
+              $push: { arr_view: `${id_user1}` }
+            }).then(res2 => res.json({
+              message: 'success',
+              data: res2
+            }))
+          }
+        }
+      )
+
+      // res.json({
+      //   message: 'success',
+      //   // data: {
+      //   //   id_message: message._id,
+      //   //   date: message.date,
+      //   //   title: message.title,
+      //   //   content: message.content,
+      //   //   image: message.image
+      //   // }
+      //   data: message1
+      // })
+
+    }
+    else {
+      let message = await messageModels.find().sort([['date', -1]])
+
+      res.json({
+        message: 'success',
+        data: message.map(item => ({
+          id_message: item._id,
+          date: item.date,
+          title: item.title,
+          content: item.content,
+          image: item.image,
+          read: item.arr_view.filter(id => `${id}` === `${id_user1}`)[0] ? true : false
+        }))
+      })
+
+    }
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.get('/favorite/get', checkToken, async function (req, res) {
   const id_user = getId({ req: req })
 
   try {
@@ -64,7 +160,8 @@ router.get('/favorite/get', async function (req, res) {
         price_product: item.price_product,
         title_product: item.title_product,
         createdAt: item.createdAt,
-        category: item.category
+        category: item.category,
+        favorite_product: item.favorite_product.find(id => `${id}` === `${id_user}`) ? true : false
       }))
     })
 
@@ -137,9 +234,10 @@ router.get('/order/history/:status', checkToken, async function (req, res) {
   const { status } = req.params
   try {
 
-    let order = await orderModels.find({ id_user: id, status: status }).sort([['createdAt', -1]])
+    let order = await orderModels.find({ id_user: id, status: status }).sort([['date', -1]])
     let product1 = await productModel.find()
     let merchant1 = await merchantModel.find()
+    let voucher1 = await VoucherModels.find()
 
     const data = order.map(item => ({
       date: item.date,
@@ -156,8 +254,12 @@ router.get('/order/history/:status', checkToken, async function (req, res) {
         price_product: parseInt(list_order.price_product),
         qty: parseInt(list_order.qty),
         category: list_order.category
-      }))
+      })),
+      total_disc: parseInt(item.total_disc),
+      nama_voucher: voucher1.filter(id => `${id._id}` === `${item.id_voucher}`).length > 0 ? voucher1.filter(id => `${id._id}` === `${item.id_voucher}`)[0].title : "",
+      onServices: item.status === 'onProcess' ? Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${item.id_carts}`).map(item => item.antrian)) : ""
     }))
+
     res.json({
       message: 'success',
       data: data
@@ -174,7 +276,7 @@ router.get('/order/history/:status', checkToken, async function (req, res) {
 
 router.post('/order/createorder', checkToken, async function (req, res) {
   const id = getId({ req: req })
-  const { note, id_merchant, total, list_order } = req.body
+  const { note, id_merchant, total, list_order, total_disc, id_voucher } = req.body
 
 
 
@@ -182,6 +284,11 @@ router.post('/order/createorder', checkToken, async function (req, res) {
 
     let post
     let antrian = await orderModels.find({ id_carts: id_merchant })
+    let order = await orderModels.find({ id_user: id, status: 'onProcess' }).sort([['createdAt', -1]])
+    if (id_voucher !== '-') {
+      await VoucherModels.findOneAndUpdate({ _id: id_voucher }, { $push: { list_user: id } })
+    }
+
 
     // res.json({
     //   message: 'success',
@@ -198,7 +305,10 @@ router.post('/order/createorder', checkToken, async function (req, res) {
         status: 'onProcess',
         invoice: `INVOICE${moment(new Date()).format('YYYYMMDDhhmmss')}-${id_merchant}`,
         list_order: list_order,
-        antrian: JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1)
+        antrian: JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1),
+        total_disc: total_disc,
+        id_voucher: id_voucher,
+        date: new Date()
       })
     }
     else {
@@ -210,7 +320,9 @@ router.post('/order/createorder', checkToken, async function (req, res) {
         status: 'onProcess',
         invoice: `INVOICE${moment(new Date()).format('YYYYMMDDhhmmss')}-${id_merchant}`,
         list_order: list_order,
-        antrian: JSON.stringify(parseInt(1))
+        antrian: JSON.stringify(parseInt(1)),
+        total_disc: total_disc,
+        id_voucher: id_voucher
       })
     }
 
@@ -241,14 +353,16 @@ router.post('/order/createorder', checkToken, async function (req, res) {
         res.json({
           message: 'success',
           data: 'berhasil membuat orderan',
-          no_antrian: JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1)
+          no_antrian: JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1),
+          onServices: Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${id_merchant}`).map(item => item.antrian))
         })
       }
       else {
         res.json({
           message: 'success',
           data: 'berhasil membuat orderan',
-          no_antrian: JSON.stringify(parseInt(1))
+          no_antrian: JSON.stringify(parseInt(1)),
+          onServices: Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${id_merchant}`).map(item => item.antrian))
         })
 
       }
@@ -339,8 +453,9 @@ router.get('/bag/listbag', checkToken, async function (req, res) {
 })
 
 
-router.post('/bag/addBucket', async function (req, res) {
-  const { id_user, id_product, qty } = req.body
+router.post('/bag/addBucket', checkToken, async function (req, res) {
+  const { id_product, qty } = req.body
+  const id_user = getId({ req: req })
 
 
   try {

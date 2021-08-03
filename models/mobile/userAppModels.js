@@ -36,6 +36,9 @@ const PostSchema = mongoose.Schema({
     type: String,
     default: ""
   },
+  list_voucher: {
+    type: Array
+  },
   status: {
     type: String,
     required: true

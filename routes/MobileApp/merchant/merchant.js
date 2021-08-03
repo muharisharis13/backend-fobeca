@@ -6,41 +6,135 @@ let crypto = require('crypto')
 const { createToken, checkToken } = require('../../../token/token')
 const orderModel = require('../../../models/orderModels')
 const productModel = require('../../../models/ProductModels')
+const orderOnsiteModel = require('../../../models/orderOnsiteModels')
 const multer = require('multer')
+const jwt_decode = require('jwt-decode')
+const moment = require('moment')
+const expenseModels = require('../../../models/expenseModels')
 
 
 let storageFile = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './uploads/testing')
+    cb(null, './uploads/imageProduct')
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + file.originalname)
   }
 })
 
-let upload = multer({ storage: storageFile })
+let uploadProduct = multer({ storage: storageFile })
+
 
 
 function getId({ req }) {
-  return jwt_decode(req.headers.authorization.split(" ")[1]).data._id
+  return  jwt_decode(req.headers.authorization.split(" ")[1]).save._id
 }
 
-
-router.post('/upload/image', upload.single('testing'), async function (req, res) {
-  const { nama } = req.body
+router.get('/order/history/cashier', checkToken, async function (req, res) {
+  const id = getId({ req: req })
   try {
-    // `http://localhost:1234/uploads/bukti_bayar_penjualan/${req.file.filename}` ===> di simpan url nya
+    let data = await orderOnsiteModel.find({ id_carts: id })
+    let product = await productModel.find()
+
+    res.json({
+      message: 'success',
+      data: data.sort(function (a, b) { return new Date(b.date) - new Date(a.date) }).map(item => ({
+        id_order_onsite: item._id,
+        date: item.date,
+        order_type: item.order_type,
+        list_order: item.list_order.map(list_order => ({
+          title_product: product.filter(product => `${product._id}` === `${list_order.id_product}`)[0].title_product,
+          image_product: product.filter(product => `${product._id}` === `${list_order.id_product}`)[0].image_product,
+          qty: parseInt(list_order.qty),
+          price_product: parseInt(list_order.price)
+        })),
+        total: parseInt(item.total),
+        total_disc: parseInt(item.total_disc),
+        payment_method: item.payment_method,
+        invoice: item.invoice
+      }))
+    })
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.post('/addProduct', checkToken, uploadProduct.single('product_photo'), async (req, res) => {
+  const { title_product, desc_product, price_product, category } = req.body
+  try {
     if (req.file) {
-      res.json({
-        image: req.file.filename
+      let post = new productModel({
+        image_product: `https://warehouse-fobeca.herokuapp.com/user/view/product/${req.file.filename}`,
+        title_product: title_product,
+        desc_product: desc_product,
+        price_product: price_product,
+        category: category,
+        status: true
       })
+
+      let save = await post.save()
+
+      res.json({
+        message: 'success',
+        data: save
+      })
+
+
     }
     else {
-      res.json({
-        message: 'error',
-        data: 'no file in uploads'
-      })
+      res.send('No file')
     }
+  } catch (err) {
+    res.json({ message: 'error', data: err })
+  }
+
+})
+
+
+router.get('/statistic/net_sales', checkToken, async function (req, res) {
+  const id = getId({ req: req })
+
+  try {
+    let order = await orderModel.find({ id_carts: id })
+    let order_onsite = await orderOnsiteModel.find({ id_carts: id })
+    let all_sales = order.concat(order_onsite)
+    let expense = await expenseModels.find({ id_carts: id })
+
+
+    var result = [];
+    all_sales.reduce(function (res, value) {
+      if (!res[moment(value.date).format('YYYY-MM-DD')]) {
+        res[moment(value.date).format('YYYY-MM-DD')] = { date: moment(value.date).format('YYYY-MM-DD'), total: 0 };
+        result.push(res[moment(value.date).format('YYYY-MM-DD')])
+      }
+      res[moment(value.date).format('YYYY-MM-DD')].total += parseInt(value.total);
+      return res;
+    }, {});
+
+    let gross_sales = result.concat(expense.map(item => ({
+      date: moment(item.date).format('YYYY-MM-DD'),
+      total: parseInt(item.total)
+    })))
+
+    let result2 = [];
+
+    for (let { date, total } of gross_sales) {                             // iterate data, get x and y
+      x = date.slice(0, 10);                                  // take yyyy-mm-dd only
+      let temp = result2.find(q => q.date.slice(0, 10) === date); // look for same data
+      if (temp) temp.total -= total;                               // if found add to y
+      else result2.push({ date: date + 'T00:00:00.000Z', total });    // if not create object and push
+    }
+
+
+    res.json({
+      message: 'success',
+      data: result2,
+      // data2: gross_sales
+    })
+
 
   } catch (err) {
     res.json({
@@ -48,6 +142,204 @@ router.post('/upload/image', upload.single('testing'), async function (req, res)
       data: err
     })
   }
+})
+
+router.get('/statistic/expense', checkToken, async function (req, res) {
+  const id = getId({ req: req })
+  try {
+
+    let data = await expenseModels.find({ id_carts: id })
+
+    res.json({
+      message: 'success',
+      data: data.map(item => ({
+        id_expense: item._id,
+        total: parseInt(item.total),
+        id_merchant: item.id_carts,
+        date: item.date,
+        list_expense: item.list_expense.map(list => ({
+          name_item: list.name_item,
+          price: parseInt(list.price)
+        }))
+      }))
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.post('/statistic/expense/add', checkToken, async function (req, res) {
+  const { list_expense, total } = req.body
+  const id = getId({ req: req })
+  let post = new expenseModels({
+    total: total,
+    list_expense: list_expense,
+    id_carts: id
+  })
+
+  try {
+
+    await post.save()
+
+    res.json({
+      message: 'success',
+      data: 'berhasil membuat expense'
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.get('/outlet_status', checkToken, async function (req, res) {
+  const id = getId({ req: req })
+
+  let outlet = await cartsModel.findOne({ _id: id })
+  try {
+    if (outlet.open === true) {
+      await cartsModel.findOneAndUpdate({ _id: id }, {
+        open: false
+      }).then(hasil => {
+        res.json({
+          message: 'success',
+          data: {
+            outlet_status: false,
+            pesan: 'outlet berhasil tutup'
+          }
+        })
+      })
+
+    }
+    else if (outlet.open === false) {
+      await cartsModel.findOneAndUpdate({ _id: id }, {
+        open: true
+      }).then(hasil => {
+        res.json({
+          message: 'success',
+          data: {
+            outlet_status: true,
+            pesan: 'outlet berhasil buka'
+          }
+        })
+      })
+
+    }
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.get('/info', checkToken, async function (req, res) {
+  const id = getId({ req: req })
+  try {
+    let data = await cartsModel.findOne({ _id: id })
+    let order = await orderModel.find({ id_carts: id })
+    let order_onsite = await orderOnsiteModel.find({ id_carts: id })
+
+    let all_transaction = order.concat(order_onsite)
+
+    res.json({
+      message: 'success',
+      data: {
+        id_merchant: data._id,
+        cart_detail: data.cart_detail,
+        outlet_status: data.open,
+        transaction: all_transaction.filter(date => `${moment(date.date).format('YYYY-MM-DD')}` === `${moment(new Date()).format('YYYY-MM-DD')}`).length,
+        total: all_transaction.filter(date => `${moment(date.date).format('YYYY-MM-DD')}` === `${moment(new Date()).format('YYYY-MM-DD')}`).reduce((t, { total }) => t + parseInt(total), 0)
+
+      }
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+router.get('/statistic/sales', checkToken, async function (req, res) {
+
+  const id = getId({ req: req })
+
+  try {
+    let order = await orderModel.find({ id_carts: id })
+    let order_onsite = await orderOnsiteModel.find({ id_carts: id })
+    let all_sales = order.concat(order_onsite)
+
+
+    var result = [];
+    all_sales.reduce(function (res, value) {
+      if (!res[moment(value.date).format('YYYY-MM-DD')]) {
+        res[moment(value.date).format('YYYY-MM-DD')] = { date: moment(value.date).format('YYYY-MM-DD'), total: 0 };
+        result.push(res[moment(value.date).format('YYYY-MM-DD')])
+      }
+      res[moment(value.date).format('YYYY-MM-DD')].total += parseInt(value.total);
+      return res;
+    }, {});
+
+    res.json({
+      message: 'success',
+      data: result.filter(date => `${moment(date.date).format('YYYY-MM-DD')}` !== `${moment(new Date()).format('YYYY-MM-DD')}`).sort((a, b) => new Date(b.date) - new Date(a.date))
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
+
+
+router.post('/order/createorder', checkToken, async function (req, res) {
+  const { order_type, list_order, total, total_disc, payment_method } = req.body
+  const id = getId({ req: req })
+
+  let post = new orderOnsiteModel({
+    order_type: order_type,
+    list_order: list_order,
+    total: total,
+    total_disc: total_disc,
+    payment_method: payment_method,
+    invoice: `ONSITE-INVC${moment(new Date()).format('YYYYMMDDhhmmss')}-${id}`,
+    id_carts: id,
+    date: new Date()
+  })
+
+  try {
+
+
+    await post.save()
+
+
+
+
+    res.json({
+      message: 'success',
+      data: {
+        // date: new Date(),
+        invoice: `ONSITE-INVC${moment(new Date()).format('YYYYMMDDhhmmss')}-${id}`
+      }
+    })
+
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+
 })
 
 router.post('/product/:id_product', checkToken, async function (req, res) {
@@ -113,12 +405,22 @@ router.post('/product/:id_product', checkToken, async function (req, res) {
 router.get('/product', checkToken, async function (req, res) {
 
   try {
-    await productModel.find().then(hasil => {
-      res.json({
-        message: 'success',
-        data: hasil
-      })
+    let product = await productModel.find()
+
+
+    res.json({
+      message: 'success',
+      data: product.map(item => ({
+        id_product: item._id,
+        image_product: item.image_product,
+        title_product: item.title_product,
+        price_product: item.price_product,
+        category: item.category,
+        createdAt: item.createdAt
+      }))
     })
+
+
   } catch (err) {
     res.json({
       message: 'error',
@@ -127,16 +429,36 @@ router.get('/product', checkToken, async function (req, res) {
   }
 })
 
-router.get('/order/completed/:id_merchant', checkToken, async function (req, res) {
-  const { id_merchant } = req.params
+router.get('/order/history/apps', checkToken, async function (req, res) {
+  const id_merchant = getId({ req: req })
 
   try {
 
-    await orderModel.find({ id_carts: id_merchant }).then(hasil => {
-      res.json({
-        message: 'success',
-        data: hasil
-      })
+    let order = await orderModel.find({ id_carts: id_merchant, status: 'completed' })
+    let user = await userModel.find()
+    let product = await productModel.find()
+
+    let data = order.sort(function (a, b) { return new Date(b.date) - new Date(a.date) }).map(item => ({
+      id_order: item._id,
+      date: item.date,
+      customer_name: user.filter(id => `${id._id}` === `${item.id_user}`)[0].full_name,
+      note: item.note,
+      total: parseInt(item.total) - parseInt(item.total_disc),
+      status: item.status,
+      invoice: item.invoice,
+      list_order: item.list_order.map(list_order => ({
+        title_product: product.filter(product => `${product._id}` === `${list_order.id_product}`)[0].title_product,
+        price_product: parseInt(list_order.price_product),
+        qty: parseInt(list_order.qty),
+        category: list_order.category
+      })),
+      antrian: item.antrian,
+      total_disc: parseInt(item.total_disc)
+    }))
+
+    res.json({
+      message: 'success',
+      data: data
     })
 
   } catch (err) {
@@ -148,12 +470,13 @@ router.get('/order/completed/:id_merchant', checkToken, async function (req, res
 })
 
 router.post('/order/completed', checkToken, async function (req, res) {
-  const { status, id_order, id_merchant } = req.body
+  const { status, id_order } = req.body
+  const id = getId({req : req})
 
   try {
 
     if (status === 'completed') {
-      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id_merchant }, {
+      await orderModel.findOneAndUpdate({ _id: id_order, id_carts: id }, {
         status: 'completed'
       }).then(hasil => {
 
@@ -196,7 +519,7 @@ router.post('/order/completed', checkToken, async function (req, res) {
   }
 })
 
-router.get('/order/ongoing/', checkToken, async function (req, res) {
+router.get('/order/ongoing', checkToken, async function (req, res) {
   const id = getId({ req: req })
 
 
@@ -221,6 +544,8 @@ router.get('/order/ongoing/', checkToken, async function (req, res) {
       total: item.total,
       status: item.status,
       invoice: item.invoice,
+      total_disc : item.total_disc,
+      antrian: item.antrian,
       list_order: item.list_order.map(order => ({
         id_product: order.id_product,
         product_name: arrProduct(order.id_product).title_product,
@@ -237,6 +562,7 @@ router.get('/order/ongoing/', checkToken, async function (req, res) {
       res.json({
         message: 'success',
         data: dataResponse,
+        // data: data,
       })
     }
     else {

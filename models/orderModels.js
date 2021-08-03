@@ -54,6 +54,14 @@ const postSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  total_disc: {
+    type: String,
+    required: true
+  },
+  id_voucher: {
+    type: String,
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now()
