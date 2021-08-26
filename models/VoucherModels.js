@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Schema = mongoose.Schema;
 
 
 const PostSchema = mongoose.Schema({
@@ -12,23 +13,38 @@ const PostSchema = mongoose.Schema({
   },
   desc: {
     type: String,
-    required: true
   },
   min_ammount: {
     type: String,
-    required: true
   },
   max_disc: {
     type: String,
-    required: true
   },
   list_user: {
     type: Array
   },
   percentage: {
     type: String,
+  },
+  category: {
+    type: String,
     required: true
+  },
+  start_date: {
+    type: Date,
+    required: true
+  },
+  end_date: {
+    type: Date,
+    required: true
+  },
+  list_product: [
+    { type: String }
+  ],
+  free_item: {
+    type: String
   }
+
 })
 
 

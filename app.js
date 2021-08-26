@@ -11,16 +11,19 @@ require('dotenv').config();
 
 
 // app.use(fileUpload());
+
 app.use(cors());
 app.options('*', cors());
 app.use('/uploads', express.static('uploads'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use('/uploads/testing', express.static('./uploads/testing'))
 app.use('/user/view/profile', express.static('./uploads/mobile/profile'))
 app.use('/user/view/product', express.static('./uploads/imageProduct'))
 app.use('/view/document', express.static('./uploads/ktpandprofile'))
+app.use('/view/document/ktp', express.static('./uploads/admin/ktp'))
+app.use('/view/voucher', express.static('./uploads/voucher'))
 
 // midleware
 // app.use('/*', (req, res, next) => {

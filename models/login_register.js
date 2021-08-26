@@ -26,6 +26,9 @@ const PostSchema = mongoose.Schema({
         type: Date,
         default:Date.now(),
     },
+    token_device: {
+        type: String
+    }
 
 })
 module.exports=mongoose.model('user_account', PostSchema);

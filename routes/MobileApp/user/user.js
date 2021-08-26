@@ -14,6 +14,8 @@ const bagBucketModels = require('../../../models/bagBucketModels')
 const moment = require('moment')
 const multer = require('multer')
 const VoucherModels = require('../../../models/VoucherModels')
+const cartsModels = require('../../../models/cartsModels')
+const { SendNotif } = require('../../../utl/sendNotif')
 
 
 let storageFile = multer.diskStorage({
@@ -63,7 +65,10 @@ router.get('/voucher', checkToken, async function (req, res) {
       min_amount: parseInt(item.min_ammount),
       max_disc: parseInt(item.max_disc),
       percentage: parseInt(item.percentage),
-      list_user: item.list_user
+      list_user: item.list_user,
+      category: item.category,
+      list_product: item.list_product,
+      free_item: item.free_item
     }))
 
     res.json({
@@ -235,6 +240,7 @@ router.get('/order/history/:status', checkToken, async function (req, res) {
   try {
 
     let order = await orderModels.find({ id_user: id, status: status }).sort([['date', -1]])
+    let onServices = await orderModels.find({ status: 'onProcess' })
     let product1 = await productModel.find()
     let merchant1 = await merchantModel.find()
     let voucher1 = await VoucherModels.find()
@@ -257,7 +263,7 @@ router.get('/order/history/:status', checkToken, async function (req, res) {
       })),
       total_disc: parseInt(item.total_disc),
       nama_voucher: voucher1.filter(id => `${id._id}` === `${item.id_voucher}`).length > 0 ? voucher1.filter(id => `${id._id}` === `${item.id_voucher}`)[0].title : "",
-      onServices: item.status === 'onProcess' ? Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${item.id_carts}`).map(item => item.antrian)) : ""
+      onServices: onServices.filter(id => `${id.status}` === `onProcess`) ? onServices.filter(id => `${id.status}` === `onProcess`)[0].antrian : ""
     }))
 
     res.json({
@@ -288,13 +294,11 @@ router.post('/order/createorder', checkToken, async function (req, res) {
     if (id_voucher !== '-') {
       await VoucherModels.findOneAndUpdate({ _id: id_voucher }, { $push: { list_user: id } })
     }
+    let merchant = await cartsModels.findOne({ _id: id_merchant })
 
 
-    // res.json({
-    //   message: 'success',
-    //   data: Math.max(...antrian.map(antrian => antrian.antrian)) + 1,
-    //   antrian: antrian.length > 1 ? antrian : null
-    // })
+
+
 
     if (antrian.length > 0) {
       post = new orderModels({
@@ -348,22 +352,42 @@ router.post('/order/createorder', checkToken, async function (req, res) {
       })
 
 
+      let body = {
+        to: `${merchant.device_token}`,
+        priority: 'high',
+        soundName: "default",
+        notification: {
+          title: "Ada Order-an Baru",
+          body: "Lihat Sekarang !"
+        }
+      }
 
       if (antrian.length > 0) {
+        SendNotif({ body: body })
         res.json({
           message: 'success',
           data: 'berhasil membuat orderan',
           no_antrian: JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1),
-          onServices: Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${id_merchant}`).map(item => item.antrian))
+          // onServices: Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${id_merchant}`).map(item => item.antrian)),
+          onServices: antrian.filter(id => `${id.status}` === `onProcess`).length > 0 ? antrian.filter(id => `${id.status}` === `onProcess`)[0].antrian : JSON.stringify(Math.max(...antrian.map(antrian => antrian.antrian)) + 1)
         })
+
+
+
+        // res.json(antrian)
+
+
       }
       else {
-        res.json({
-          message: 'success',
-          data: 'berhasil membuat orderan',
-          no_antrian: JSON.stringify(parseInt(1)),
-          onServices: Math.min.apply(Math, order.filter(id => `${id.id_carts}` === `${id_merchant}`).map(item => item.antrian))
-        })
+        SendNotif({ body: body })
+          res.json({
+            message: 'success',
+            data: 'berhasil membuat orderan',
+            no_antrian: JSON.stringify(parseInt(1)),
+            onServices: parseInt(1)
+          })
+
+        res.json('ini antrian nyaa')
 
       }
     }
@@ -777,12 +801,14 @@ router.get('/details/', checkToken, async function (req, res) {
 })
 
 router.post('/login', async function (req, res, next) {
-  const { email, password } = req.body
+  const { email, password, device_token } = req.body
   try {
 
-    const save = await LoginRegisterUserModels.findOne({
+    const save = await LoginRegisterUserModels.findOneAndUpdate({
       email: email,
       password: crypto.createHash('md5').update(password).digest('hex')
+    }, {
+      device_token: device_token
     })
 
 

@@ -11,6 +11,8 @@ const multer = require('multer')
 const jwt_decode = require('jwt-decode')
 const moment = require('moment')
 const expenseModels = require('../../../models/expenseModels')
+const historyTopUpModels = require('../../../models/historyTopUpModels')
+const { SendNotif } = require('../../../utl/sendNotif')
 
 
 let storageFile = multer.diskStorage({
@@ -29,6 +31,33 @@ let uploadProduct = multer({ storage: storageFile })
 function getId({ req }) {
   return  jwt_decode(req.headers.authorization.split(" ")[1]).save._id
 }
+
+router.get('/getFcm', async function (req, res) {
+  const body = {
+    "to": "dLdVn4wZRMmb9UcsvvN2AS:APA91bG4WQyyFFzGgbAp2GB4XWi_FAeUOA9joPldpqzRfNoyo1HEyqRRxfIeRNaeiIgjEAyXegK5x8y0iMBh5L_W4GMLUtGPJwR0-EQo4ggCHzkqps-sRMGAR84JJ9yArMrGeoEjdWhw",
+    "priority": "high",
+    "soundName": "default",
+    "notification": {
+      "title": "ini title muharis",
+      "body": "ini body muharis"
+    }
+  }
+  try {
+    SendNotif({ body: body })
+      .then(res1 => {
+        res.json({
+          message: 'success',
+          data: res1
+        })
+      })
+    // res.json({ message: 'success' })
+  } catch (err) {
+    res.json({
+      message: 'error',
+      data: err
+    })
+  }
+})
 
 router.get('/order/history/cashier', checkToken, async function (req, res) {
   const id = getId({ req: req })
@@ -581,12 +610,14 @@ router.get('/order/ongoing', checkToken, async function (req, res) {
 })
 
 router.post('/login', async function (req, res) {
-  const { email, password } = req.body
+  const { email, password, device_token } = req.body
   try {
     if (email && password) {
-      const save = await cartsModel.findOne({
+      const save = await cartsModel.findOneAndUpdate({
         password: crypto.createHash('md5').update(password).digest('hex'),
         email: email.toLowerCase(),
+      }, {
+        device_token: device_token
       })
 
       if (save === null) {
@@ -680,7 +711,9 @@ router.post('/checkPhoneNumber', checkToken, async function (req, res) {
 })
 
 router.post('/topup', async function (req, res) {
-  const { amount, phone_number } = req.body
+  const { amount, phone_number, id_user } = req.body
+  const id_merchant = getId({ req: req })
+
   try {
     if (amount && phone_number) {
       let balanceUser
@@ -688,18 +721,34 @@ router.post('/topup', async function (req, res) {
         balanceUser = res.balance
       })
 
-      let total = parseInt(balanceUser) + parseInt(amount)
+      if (parseInt(balanceUser) <= 2000000) {
+        let total = parseInt(balanceUser) + parseInt(amount)
 
-      const save = await userModel.findOneAndUpdate({ phone_number: phone_number }, {
-        balance: JSON.stringify(total)
-      })
-      res.status(200).json({
-        message: 'success',
-        data: {
-          balance: amount,
-          phone_number: save.phone_number
-        }
-      })
+        await new historyTopUpModels({
+          amount: parseInt(amount),
+          phone_number: parseInt(phone_number),
+          // id_user: id_user,
+          id_carts: id_merchant
+        }).save()
+        const save = await userModel.findOneAndUpdate({ phone_number: phone_number }, {
+          balance: JSON.stringify(total)
+        })
+        res.status(200).json({
+          message: 'success',
+          data: {
+            balance: amount,
+            phone_number: save.phone_number
+          }
+        })
+
+      }
+      else {
+        res.json({
+          message: 'error',
+          data: `${phone_number} - Top Sudah Mencapai Limit`
+        })
+      }
+
 
     }
     else {

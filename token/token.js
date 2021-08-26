@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const jwt_decode = require('jwt-decode')
 
 
 exports.createToken = function ({ payload }) {
@@ -15,4 +16,8 @@ exports.checkToken = function (req, res, next) {
   } catch (err) {
     return res.status(401).json({ message: 'Auth Failed' })
   }
+}
+
+exports.getID = function getId({ req }) {
+  return jwt_decode(req.headers.authorization.split(" ")[1]).data._id
 }

@@ -15,6 +15,8 @@ const favorite_routes = require('../routes/favorite/favorite')
 const spv_routes = require('../routes/webApp/SPV/spv')
 
 const voucher_routes = require('../routes/voucher/voucher')
+const superadmin_routes = require('../routes/webApp/superAdmin/SuperAdmin')
+const test_routes = require('../routes/testing/index')
 
 
 
@@ -36,6 +38,13 @@ router.use('/merchants', merchant_routes)
 router.use('/messages', message_routes)
 router.use('/favorites', favorite_routes)
 router.use('/vouchers', voucher_routes)
+
+
+// super admin
+
+router.use('/adm', superadmin_routes)
+
+router.use('/test', test_routes)
 
 
 

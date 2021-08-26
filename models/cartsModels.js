@@ -1,6 +1,6 @@
-const moment = require('moment');
+
 const mongoose = require('mongoose');
-const { format } = require('date-fns')
+const Schema = mongoose.Schema;
 
 const PostSchema = mongoose.Schema({
 
@@ -63,6 +63,29 @@ const PostSchema = mongoose.Schema({
         type: Date,
         default:Date.now(),
     },
+    stock: [
+        {
+            id_stock: {
+                type: Schema.Types.ObjectId,
+                required: true
+            },
+            name_stock: {
+                type: String,
+                required: true
+            },
+            qty: {
+                type: Number,
+                required: true
+            },
+            uom: {
+                type: String,
+                required: true
+            }
+        }
+    ],
+    device_token: {
+        type: String
+    }
 
 
 })

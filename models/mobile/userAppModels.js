@@ -42,6 +42,9 @@ const PostSchema = mongoose.Schema({
   status: {
     type: String,
     required: true
+  },
+  device_token: {
+    type: String
   }
 })
 

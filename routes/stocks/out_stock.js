@@ -3,29 +3,71 @@ const router = express.Router();
 const stockModels = require('../../models/stockModels')
 const transactionModels = require('../../models/transactionModels')
 const mongoose = require('mongoose');
+const moment = require('moment')
 
 
 router.get('/', async (req, res) => {
+    const year = new Date().getFullYear()
+    // start = moment(new Date(year, 0, 1)).format('YYYY-MM-DD'),
+    //     end = moment(new Date().setDate(new Date().getDate() + 1)).format('YYYY-MM-DD'),
+    const {
+        start = "",
+        end = "",
+        cart = ""
+    } = req.query
+
+    let temp = {}
+
+    if (start && end && cart === "") {
+        temp = {
+            date: {
+                $gte: moment(new Date(start).setDate(new Date(start).getDate() + 0)).toDate(),
+                $lte: moment(new Date(end).setDate(new Date(end).getDate() + 1)).toDate()
+            }
+        }
+    }
+    else if (cart && start === "" && end === "") {
+        temp = {
+            carts_name: { $regex: `${cart}`, $options: "$i" }
+        }
+    }
+    else if (cart && start && end) {
+        temp = {
+            date: {
+                $gte: moment(new Date(start).setDate(new Date(start).getDate() + 0)).toDate(),
+                $lte: moment(new Date(end).setDate(new Date(end).getDate() + 1)).toDate()
+            },
+            carts_name: { $regex: `${cart}`, $options: "$i" }
+        }
+    }
+
     try {
         var data = await transactionModels.aggregate([
-        {
-            $lookup:
             {
-                from: "couriers",
-                localField: "couries_id",
-                foreignField: "_id",
-                as: "couries_id"
+
+                $match: temp
             },
-        },
+            {
+                $lookup:
+                {
+                    from: "couriers",
+                    localField: "couries_id",
+                    foreignField: "_id",
+                    as: "couries_id"
+                },
+            },
 
-    ])
+        ])
 
-        // let data = await transactionModels.find()
+        // var data = await transactionModels.find(temp)
 
-        // var list_item = await stockModels.find({ _id: { $in: data.item_order } })
-        
-        // data.item_order = list_item;
         res.json(data)
+
+        // res.json({
+        //     data: data,
+        //     $gte: moment(new Date(start).setDate(new Date(start).getDate() + 0)).toDate(),
+        //     $lte: moment(new Date(end).setDate(new Date(end).getDate() + 1)).toDate()
+        // })
     } catch (error) {
         res.status(500)
         res.json({ message: error })
@@ -39,7 +81,7 @@ router.get('/:_getid', async (req, res) => {
     req.params._getid
     try {
         var data = await transactionModels.aggregate([
-            { $match: { _id : mongoose.Types.ObjectId("60ac740470e53a00226fb034") } },
+            { $match: { _id: mongoose.Types.ObjectId(req.params._getid) } },
         {
             $lookup:
             {
@@ -102,10 +144,8 @@ module.exports = router;
 router.post('/:_getid', async (req, res) => {
     console.log(req.params._getid)
     try {
-        const data = await transactionModels.updateOne({ _id: req.params._getid }, {
-            $set: {
-                status: req.body.status,
-            }
+        const data = await transactionModels.findOneAndUpdate({ _id: req.params._getid }, {
+            status: req.body.status
         })
         res.json(data)
 
